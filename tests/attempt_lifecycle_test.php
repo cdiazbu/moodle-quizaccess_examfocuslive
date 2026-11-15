@@ -135,7 +135,7 @@ final class attempt_lifecycle_test extends advanced_testcase {
      * Batch targets are bound to the selected quiz and other attempts remain active.
      */
     public function test_group_actions_finish_active_and_paused_attempts(): void {
-        global $DB;
+        global $DB, $PAGE;
         $this->resetAfterTest();
         $this->preventResetByRollback();
         [, $teacher, $attempt, $quiz, $quizgen] = $this->create_monitored_attempt(['examfocuslive_autopause' => 0]);
@@ -145,9 +145,11 @@ final class attempt_lifecycle_test extends advanced_testcase {
         $this->setUser($other);
         $second = $quizgen->create_attempt($quiz->id, $other->id);
         $quizgen->submit_responses($second->id, [1 => get_string('true', 'qtype_truefalse')], false, false);
+        $PAGE = new \moodle_page();
         [, , $outside, $outsidequiz] = $this->create_monitored_attempt();
         $generator->enrol_user($teacher->id, $outsidequiz->course, 'editingteacher');
 
+        $PAGE = new \moodle_page();
         $this->setUser($teacher);
         $result = bulk_control::execute($quiz->cmid, 'pause', [
             ['attemptid' => $attempt->id, 'revision' => 0],

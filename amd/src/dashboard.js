@@ -128,7 +128,8 @@ const studentCard = (student) => {
         <div class="efl-card__details">
             <div><span>${escapeHtml(config.strings.location)}</span><strong>${question}</strong></div>
             <div><span>${escapeHtml(config.strings.activeelapsed)}</span><strong class="efl-mono">${elapsed}</strong></div>
-            <div><span>${escapeHtml(config.strings.incidents)}</span><strong class="${incidentClass}">${student.incidents}</strong></div>
+            <div><span>${escapeHtml(config.strings.incidents)}</span>
+                <strong class="${incidentClass}">${student.incidents}</strong></div>
             <div><span>${escapeHtml(config.strings.lastseen)}</span><strong>${lastSeen}</strong></div>
         </div>
         ${actionButtons(student)}

@@ -429,7 +429,7 @@ class state_manager {
      */
     private static function allowed_students(stdClass $cm, context_module $context, bool $write = false): ?array {
         global $DB, $USER;
-        $mode = groups_get_activity_groupmode($cm);
+        $mode = (int) groups_get_activity_groupmode($cm);
         if (
             has_capability('moodle/site:accessallgroups', $context) ||
                 ($mode !== SEPARATEGROUPS && !($write && $mode === VISIBLEGROUPS))
