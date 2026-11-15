@@ -40,7 +40,12 @@ use core_privacy\local\request\writer;
  * Provide access to monitoring data through the Moodle Privacy API.
  */
 class provider implements core_userlist_provider, metadata_provider, request_provider {
-    /** Declare the monitoring data stored by the plugin. */
+    /**
+     * Declare the monitoring data stored by the plugin.
+     *
+     * @param collection $collection Metadata collection
+     * @return collection Updated collection
+     */
     public static function get_metadata(collection $collection): collection {
         $collection->add_database_table('quizaccess_examfocuslive_att', [
             'userid' => 'privacy:metadata:attempt:userid',
@@ -74,7 +79,12 @@ class provider implements core_userlist_provider, metadata_provider, request_pro
         return $collection;
     }
 
-    /** Find quiz contexts associated with a student or teacher. */
+    /**
+     * Find quiz contexts associated with a student or teacher.
+     *
+     * @param int $userid Moodle user identifier
+     * @return contextlist Contexts containing monitoring data
+     */
     public static function get_contexts_for_userid(int $userid): contextlist {
         $sql = "SELECT ctx.id
                   FROM {context} ctx
@@ -95,7 +105,11 @@ class provider implements core_userlist_provider, metadata_provider, request_pro
         return (new contextlist())->add_from_sql($sql, $params);
     }
 
-    /** Export monitoring data from the approved quiz contexts. */
+    /**
+     * Export monitoring data from the approved quiz contexts.
+     *
+     * @param approved_contextlist $contextlist Approved quiz contexts
+     */
     public static function export_user_data(approved_contextlist $contextlist): void {
         global $DB;
         $userid = $contextlist->get_user()->id;
@@ -135,7 +149,11 @@ class provider implements core_userlist_provider, metadata_provider, request_pro
         }
     }
 
-    /** Erase monitoring data for a quiz context. */
+    /**
+     * Erase monitoring data for a quiz context.
+     *
+     * @param \context $context Approved quiz context
+     */
     public static function delete_data_for_all_users_in_context(\context $context): void {
         global $DB;
         if (!$context instanceof context_module) {
@@ -149,7 +167,11 @@ class provider implements core_userlist_provider, metadata_provider, request_pro
         $DB->delete_records('quizaccess_examfocuslive_att', ['quizid' => $cm->instance]);
     }
 
-    /** Erase the user’s monitoring data in approved contexts. */
+    /**
+     * Erase the user’s monitoring data in approved contexts.
+     *
+     * @param approved_contextlist $contextlist Approved quiz contexts
+     */
     public static function delete_data_for_user(approved_contextlist $contextlist): void {
         global $DB;
         $userid = $contextlist->get_user()->id;
@@ -165,7 +187,11 @@ class provider implements core_userlist_provider, metadata_provider, request_pro
         }
     }
 
-    /** Find students and decision authors in the quiz context. */
+    /**
+     * Find students and decision authors in the quiz context.
+     *
+     * @param userlist $userlist User list for the quiz context
+     */
     public static function get_users_in_context(userlist $userlist): void {
         $context = $userlist->get_context();
         $cm = $context instanceof context_module ? get_coursemodule_from_id('quiz', $context->instanceid) : false;
@@ -175,7 +201,12 @@ class provider implements core_userlist_provider, metadata_provider, request_pro
         foreach (['quizaccess_examfocuslive_att', 'quizaccess_examfocuslive_evt'] as $table) {
             $userlist->add_from_sql('userid', "SELECT userid FROM {{$table}} WHERE quizid = :quizid", ['quizid' => $cm->instance]);
         }
-        foreach (['quizaccess_examfocuslive_att' => 'decisionby', 'quizaccess_examfocuslive_evt' => 'actorid'] as $table => $field) {
+        foreach (
+            [
+            'quizaccess_examfocuslive_att' => 'decisionby',
+            'quizaccess_examfocuslive_evt' => 'actorid',
+            ] as $table => $field
+        ) {
             $userlist->add_from_sql(
                 $field,
                 "SELECT $field FROM {{$table}} WHERE quizid = :quizid AND $field > 0",
@@ -184,7 +215,11 @@ class provider implements core_userlist_provider, metadata_provider, request_pro
         }
     }
 
-    /** Erase monitoring data for the approved users. */
+    /**
+     * Erase monitoring data for the approved users.
+     *
+     * @param approved_userlist $userlist Approved users in the quiz context
+     */
     public static function delete_data_for_users(approved_userlist $userlist): void {
         $context = $userlist->get_context();
         $cm = $context instanceof context_module ? get_coursemodule_from_id('quiz', $context->instanceid) : false;
@@ -205,7 +240,12 @@ class provider implements core_userlist_provider, metadata_provider, request_pro
         [$insql, $params] = $DB->get_in_or_equal($userids, SQL_PARAMS_NAMED, 'eflprivacy');
         $params['quizid'] = $quizid;
         $transaction = $DB->start_delegated_transaction();
-        foreach (['quizaccess_examfocuslive_evt' => 'actorid', 'quizaccess_examfocuslive_att' => 'decisionby'] as $table => $field) {
+        foreach (
+            [
+            'quizaccess_examfocuslive_evt' => 'actorid',
+            'quizaccess_examfocuslive_att' => 'decisionby',
+            ] as $table => $field
+        ) {
             $DB->delete_records_select($table, "quizid = :quizid AND userid $insql", $params);
             $DB->set_field_select($table, $field, 0, "quizid = :quizid AND $field $insql", $params);
         }

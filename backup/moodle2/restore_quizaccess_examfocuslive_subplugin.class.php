@@ -30,7 +30,11 @@ require_once($CFG->dirroot . '/mod/quiz/backup/moodle2/restore_mod_quiz_access_s
  * Restore quiz monitoring settings.
  */
 class restore_quizaccess_examfocuslive_subplugin extends restore_mod_quiz_access_subplugin {
-    /** Define the quiz settings structure. */
+    /**
+     * Define the quiz settings structure.
+     *
+     * @return mixed Quiz subplugin structure
+     */
     protected function define_quiz_subplugin_structure() {
         return [new restore_path_element(
             $this->get_namefor(''),

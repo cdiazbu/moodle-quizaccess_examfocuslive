@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<XMLDB PATH="mod/quiz/accessrule/examfocuslive/db" VERSION="2026111409" COMMENT="XMLDB file for quizaccess_examfocuslive">
+<XMLDB PATH="mod/quiz/accessrule/examfocuslive/db" VERSION="2026111500" COMMENT="XMLDB file for quizaccess_examfocuslive">
   <TABLES>
     <TABLE NAME="quizaccess_examfocuslive_cfg" COMMENT="Configuration per quiz">
       <FIELDS>

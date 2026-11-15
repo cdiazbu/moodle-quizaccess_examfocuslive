@@ -28,12 +28,18 @@ namespace quizaccess_examfocuslive\task;
  * Maintain deadlines while an attempt is paused.
  */
 class freeze_paused_deadlines extends \core\task\scheduled_task {
-    /** Return the task name shown in Moodle. */
+    /**
+     * Return the task name shown in Moodle.
+     *
+     * @return string Localised task name
+     */
     public function get_name(): string {
         return get_string('taskfreezedeadlines', 'quizaccess_examfocuslive');
     }
 
-    /** Run the scheduled monitoring maintenance. */
+    /**
+     * Run the scheduled monitoring maintenance.
+     */
     public function execute(): void {
         // Moodle now recalculates the deadline using the access rule.
     }

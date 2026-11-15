@@ -36,7 +36,9 @@ class cleanup extends \core\task\scheduled_task {
         return get_string('taskcleanup', 'quizaccess_examfocuslive');
     }
 
-    /** Remove expired monitoring data in batches. */
+    /**
+     * Remove expired monitoring data in batches.
+     */
     public function execute(): void {
         global $DB;
         $days = (int) get_config('quizaccess_examfocuslive', 'retentiondays');
@@ -45,7 +47,12 @@ class cleanup extends \core\task\scheduled_task {
         }
 
         $cutoff = time() - $days * DAYSECS;
-        foreach (['quizaccess_examfocuslive_evt' => 'eventtime', 'quizaccess_examfocuslive_att' => 'timemodified'] as $table => $field) {
+        foreach (
+            [
+            'quizaccess_examfocuslive_evt' => 'eventtime',
+            'quizaccess_examfocuslive_att' => 'timemodified',
+            ] as $table => $field
+        ) {
             do {
                 $records = $DB->get_records_sql(
                     "SELECT data.id

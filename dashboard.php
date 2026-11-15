@@ -220,9 +220,10 @@ echo $OUTPUT->header();
 
     <p class="efl-visible-count" data-visible-count></p>
     <section class="efl-student-grid" data-student-grid aria-busy="true">
-        <?php for ($i = 0; $i < 6; $i++) : ?>
-            <div class="efl-card efl-card--skeleton" aria-hidden="true"><span></span><span></span><span></span></div>
-        <?php endfor; ?>
+        <?= str_repeat(
+            '<div class="efl-card efl-card--skeleton" aria-hidden="true"><span></span><span></span><span></span></div>',
+            6,
+        ) ?>
     </section>
 
     <div class="efl-empty" data-empty hidden>
@@ -251,5 +252,4 @@ echo $OUTPUT->header();
     </div>
     <div class="efl-toast" data-toast role="status" aria-live="polite" hidden></div>
 </div>
-<?php
-echo $OUTPUT->footer();
+<?= $OUTPUT->footer() ?>

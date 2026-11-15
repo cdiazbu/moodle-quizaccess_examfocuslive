@@ -38,7 +38,10 @@ function xmldb_quizaccess_examfocuslive_upgrade(int $oldversion): bool {
         if (!$manager->field_exists($table, $grace)) {
             $manager->add_field($table, $grace);
         }
-        $manager->change_field_default($table, new xmldb_field('displaymode', XMLDB_TYPE_CHAR, '10', null, XMLDB_NOTNULL, null, 'name'));
+        $manager->change_field_default(
+            $table,
+            new xmldb_field('displaymode', XMLDB_TYPE_CHAR, '10', null, XMLDB_NOTNULL, null, 'name')
+        );
         $manager->change_field_default($table, new xmldb_field('autopause', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, 0));
         $manager->change_field_default($table, new xmldb_field('heartbeat', XMLDB_TYPE_INTEGER, '4', null, XMLDB_NOTNULL, null, 5));
 

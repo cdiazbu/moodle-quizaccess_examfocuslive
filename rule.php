@@ -48,7 +48,12 @@ class quizaccess_examfocuslive extends access_rule_base {
         return new self($quizobj, $timenow);
     }
 
-    /** Add monitoring settings to the quiz form. */
+    /**
+     * Add monitoring settings to the quiz form.
+     *
+     * @param mod_quiz_mod_form $quizform Quiz settings form
+     * @param MoodleQuickForm $mform Form controls
+     */
     public static function add_settings_form_fields($quizform, $mform) {
         $mform->addElement('header', 'examfocusliveheader', get_string('examfocusliveheader', 'quizaccess_examfocuslive'));
         $mform->setExpanded('examfocusliveheader', false);
@@ -96,7 +101,15 @@ class quizaccess_examfocuslive extends access_rule_base {
         $mform->hideIf('examfocuslive_heartbeat', 'examfocuslive_enabled', 'eq', 0);
     }
 
-    /** Validate the submitted monitoring settings. */
+    /**
+     * Validate the submitted monitoring settings.
+     *
+     * @param array $errors Existing validation errors
+     * @param array $data Submitted settings
+     * @param array $files Submitted files
+     * @param mod_quiz_mod_form $quizform Quiz settings form
+     * @return array Validation errors
+     */
     public static function validate_settings_form_fields(array $errors, array $data, $files, mod_quiz_mod_form $quizform) {
         if (
             !empty($data['examfocuslive_enabled']) &&
@@ -107,7 +120,11 @@ class quizaccess_examfocuslive extends access_rule_base {
         return $errors;
     }
 
-    /** Save monitoring settings for the quiz. */
+    /**
+     * Save monitoring settings for the quiz.
+     *
+     * @param stdClass $quiz Quiz settings
+     */
     public static function save_settings($quiz) {
         global $DB;
 
@@ -133,7 +150,12 @@ class quizaccess_examfocuslive extends access_rule_base {
         }
     }
 
-    /** Return the join used to load monitoring settings. */
+    /**
+     * Return the join used to load monitoring settings.
+     *
+     * @param int $quizid Quiz identifier
+     * @return array Fields, joins and parameters
+     */
     public static function get_settings_sql($quizid) {
         return [
             'efl.enabled AS examfocuslive_enabled, efl.displaymode AS examfocuslive_displaymode, ' .
@@ -144,7 +166,11 @@ class quizaccess_examfocuslive extends access_rule_base {
         ];
     }
 
-    /** Delete monitoring settings when the quiz is deleted. */
+    /**
+     * Delete monitoring settings when the quiz is deleted.
+     *
+     * @param stdClass $quiz Quiz being deleted
+     */
     public static function delete_settings($quiz) {
         global $DB;
         $quizid = is_object($quiz) ? $quiz->id : $quiz;
@@ -162,12 +188,23 @@ class quizaccess_examfocuslive extends access_rule_base {
         return ['timelimit'];
     }
 
-    /** Return the deadline adjusted for confirmed pauses. */
+    /**
+     * Return the deadline adjusted for confirmed pauses.
+     *
+     * @param stdClass $attempt Quiz attempt
+     * @return int|false Effective end time, or false for an untimed attempt
+     */
     public function end_time($attempt) {
         return state_manager::get_attempt_end_time($attempt, $this->quizobj->get_quiz(), $this->quizobj->get_context());
     }
 
-    /** Return the remaining time displayed to the student. */
+    /**
+     * Return the remaining time displayed to the student.
+     *
+     * @param stdClass $attempt Quiz attempt
+     * @param int $timenow Current time
+     * @return int|false Remaining time, or false for an untimed attempt
+     */
     public function time_left_display($attempt, $timenow) {
         $endtime = $this->end_time($attempt);
         if (!empty($attempt->preview) && $endtime !== false && $timenow > $endtime) {
@@ -211,7 +248,11 @@ class quizaccess_examfocuslive extends access_rule_base {
         return false;
     }
 
-    /** Load student monitoring on eligible quiz attempt pages. */
+    /**
+     * Load student monitoring on eligible quiz attempt pages.
+     *
+     * @param moodle_page $page Attempt page
+     */
     public function setup_attempt_page($page) {
         $attemptid = optional_param('attempt', 0, PARAM_INT);
         if (
@@ -248,7 +289,11 @@ class quizaccess_examfocuslive extends access_rule_base {
         ]]);
     }
 
-    /** Describe the active quiz access rule. */
+    /**
+     * Describe the active quiz access rule.
+     *
+     * @return string Rule description
+     */
     public function description() {
         $messages = [get_string('monitoringdescription', 'quizaccess_examfocuslive')];
         $context = $this->quizobj->get_context();

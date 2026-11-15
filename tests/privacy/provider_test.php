@@ -68,7 +68,10 @@ final class provider_test extends provider_testcase {
             ]);
         }
 
-        $this->assertEqualsCanonicalizing([$ctx->id, $otherctx->id], provider::get_contexts_for_userid($teacher->id)->get_contextids());
+        $this->assertEqualsCanonicalizing(
+            [$ctx->id, $otherctx->id],
+            provider::get_contexts_for_userid($teacher->id)->get_contextids()
+        );
         $users = new userlist($ctx, $component);
         provider::get_users_in_context($users);
         $this->assertEqualsCanonicalizing([$student->id, $teacher->id], $users->get_userids());
@@ -94,7 +97,9 @@ final class provider_test extends provider_testcase {
         provider::delete_data_for_user($teacherrequest);
         $this->assertSame(0, (int) $DB->get_field('quizaccess_examfocuslive_evt', 'actorid', ['id' => $eventids[$quiz->id]]));
         $this->assertTrue($DB->record_exists('quizaccess_examfocuslive_att', ['quizid' => $quiz->id, 'decisionby' => 0]));
-        $this->assertTrue($DB->record_exists('quizaccess_examfocuslive_att', ['quizid' => $otherquiz->id, 'decisionby' => $teacher->id]));
+        $this->assertTrue($DB->record_exists('quizaccess_examfocuslive_att', [
+            'quizid' => $otherquiz->id, 'decisionby' => $teacher->id,
+        ]));
 
         provider::delete_data_for_users(new approved_userlist($ctx, $component, [$student->id]));
         $this->assertFalse($DB->record_exists('quizaccess_examfocuslive_att', ['quizid' => $quiz->id]));

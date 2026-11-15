@@ -657,7 +657,9 @@ body.efl-attempt-locked {
     display: none;
 }
 .efl-lock::before {
-    background-image: linear-gradient(rgba(255, 255, 255, .026) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, .026) 1px, transparent 1px);
+    background-image:
+        linear-gradient(rgba(255, 255, 255, .026) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, .026) 1px, transparent 1px);
     background-size: 38px 38px;
     content: "";
     inset: 0;
