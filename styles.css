@@ -60,6 +60,7 @@
 }
 .efl-hero h1 {
     color: #fff;
+    /* stylelint-disable-next-line csstree/validator -- Moodle 4.5 CSS validation rejects valid clamp() values. */
     font-size: clamp(2rem, 4vw, 3.4rem);
     font-weight: 760;
     letter-spacing: -.045em;
@@ -717,6 +718,7 @@ body.efl-attempt-locked {
 }
 .efl-lock h1 {
     color: #fff;
+    /* stylelint-disable-next-line csstree/validator -- Moodle 4.5 CSS validation rejects valid clamp() values. */
     font-size: clamp(2rem, 6vw, 3.2rem);
     font-weight: 790;
     letter-spacing: -.045em;
@@ -941,6 +943,7 @@ body.efl-attempt-locked {
 }
 .efl-heading h1 {
     color: #fff;
+    /* stylelint-disable-next-line csstree/validator -- Moodle 4.5 CSS validation rejects valid clamp() values. */
     font-size: clamp(1.1rem, 2vw, 1.5rem);
     line-height: 1.2;
     margin: .15rem 0 0;
