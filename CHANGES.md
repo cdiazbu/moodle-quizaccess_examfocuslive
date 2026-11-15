@@ -5,6 +5,8 @@
 - Return to the quiz through its native link even when fullscreen exit is delayed or denied.
 - Adopt Moodle’s table naming convention and migrate existing monitoring records in place.
 - Keep Moodle’s normal timer when a quiz attempt is created before it has a database ID.
+- Apply activity group boundaries consistently when Moodle returns group modes as database strings.
+- Remove the loading placeholders when the roster first renders.
 - Preserve modified link clicks and clean up the expanded dashboard when leaving it.
 
 ## 0.3.5 - 2026-11-14

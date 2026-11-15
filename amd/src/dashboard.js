@@ -199,6 +199,9 @@ const updateBulkControls = (filtered) => {
 const render = () => {
     const filtered = students.filter(matchesFilter).sort(compareStudents);
     const grid = root.querySelector('[data-student-grid]');
+    if (grid.getAttribute('aria-busy') === 'true') {
+        grid.replaceChildren();
+    }
     // Preserve the control under the teacher's keyboard focus during live refresh.
     const active = document.activeElement;
     const focusedAttempt = grid.contains(active) ? active.dataset.attempt : null;
