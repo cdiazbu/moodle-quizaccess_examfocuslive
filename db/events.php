@@ -38,4 +38,3 @@ $observers = [
         'callback' => '\\quizaccess_examfocuslive\\local\\observer::attempt_ended',
     ],
 ];
-

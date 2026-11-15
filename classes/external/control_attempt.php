@@ -71,4 +71,3 @@ class control_attempt extends external_api {
         return heartbeat::state_structure();
     }
 }
-

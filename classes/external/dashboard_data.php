@@ -90,4 +90,3 @@ class dashboard_data extends external_api {
         ]);
     }
 }
-

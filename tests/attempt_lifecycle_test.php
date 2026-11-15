@@ -87,7 +87,7 @@ final class attempt_lifecycle_test extends advanced_testcase {
         $this->assertSame(quiz_attempt::FINISHED, $record->state);
         $this->assertEquals(1.0, $record->sumgrades);
         $this->assertTrue($DB->record_exists('quiz_grades', ['quiz' => $quiz->id, 'userid' => $student->id]));
-        $live = $DB->get_record('quizaccess_efl_attempt', ['attemptid' => $attempt->id], '*', MUST_EXIST);
+        $live = $DB->get_record('quizaccess_examfocuslive_att', ['attemptid' => $attempt->id], '*', MUST_EXIST);
         $this->assertSame(20, (int) $live->pausedseconds);
     }
 
@@ -104,7 +104,7 @@ final class attempt_lifecycle_test extends advanced_testcase {
         $first = state_manager::control($attempt->id, 'pause', $teacher->id, 0);
         $this->assertTrue($first->manualpause);
         $this->assertSame(0, $first->incidents);
-        $this->assertTrue($DB->record_exists('quizaccess_efl_event', [
+        $this->assertTrue($DB->record_exists('quizaccess_examfocuslive_evt', [
             'attemptid' => $attempt->id, 'eventtype' => 'teacherpaused', 'actorid' => $teacher->id,
         ]));
 
@@ -155,8 +155,8 @@ final class attempt_lifecycle_test extends advanced_testcase {
             ['attemptid' => $attempt->id, 'revision' => 0],
         ]);
         $this->assertSame(['updated', 'skipped'], array_column($result['results'], 'outcome'));
-        $this->assertFalse($DB->record_exists('quizaccess_efl_attempt', ['attemptid' => $second->id]));
-        $this->assertFalse($DB->record_exists('quizaccess_efl_attempt', ['attemptid' => $outside->id]));
+        $this->assertFalse($DB->record_exists('quizaccess_examfocuslive_att', ['attemptid' => $second->id]));
+        $this->assertFalse($DB->record_exists('quizaccess_examfocuslive_att', ['attemptid' => $outside->id]));
 
         $result = bulk_control::execute($quiz->cmid, 'terminate', [
             ['attemptid' => $attempt->id, 'revision' => 1],
@@ -166,7 +166,7 @@ final class attempt_lifecycle_test extends advanced_testcase {
         $this->assertSame(quiz_attempt::FINISHED, $DB->get_field('quiz_attempts', 'state', ['id' => $attempt->id]));
         $this->assertSame(quiz_attempt::FINISHED, $DB->get_field('quiz_attempts', 'state', ['id' => $second->id]));
         $this->assertEquals(1.0, $DB->get_field('quiz_attempts', 'sumgrades', ['id' => $second->id]));
-        $this->assertSame(0, (int) $DB->get_field('quizaccess_efl_attempt', 'pausedseconds', ['attemptid' => $second->id]));
+        $this->assertSame(0, (int) $DB->get_field('quizaccess_examfocuslive_att', 'pausedseconds', ['attemptid' => $second->id]));
         $this->assertSame(quiz_attempt::IN_PROGRESS, $DB->get_field('quiz_attempts', 'state', ['id' => $outside->id]));
     }
 
@@ -213,14 +213,14 @@ final class attempt_lifecycle_test extends advanced_testcase {
         state_manager::focus_lost($attempt->id, $student->id, 'blur', 'abandoned-event');
         $past = time() - 2 * DAYSECS;
         quiz_attempt::create($attempt->id)->process_abandon($past, false);
-        $DB->set_field('quizaccess_efl_attempt', 'timemodified', $past, ['attemptid' => $attempt->id]);
-        $DB->set_field('quizaccess_efl_event', 'eventtime', $past, ['attemptid' => $attempt->id]);
+        $DB->set_field('quizaccess_examfocuslive_att', 'timemodified', $past, ['attemptid' => $attempt->id]);
+        $DB->set_field('quizaccess_examfocuslive_evt', 'eventtime', $past, ['attemptid' => $attempt->id]);
         set_config('retentiondays', 1, 'quizaccess_examfocuslive');
 
         (new cleanup())->execute();
 
-        $this->assertFalse($DB->record_exists('quizaccess_efl_attempt', ['attemptid' => $attempt->id]));
-        $this->assertFalse($DB->record_exists('quizaccess_efl_event', ['attemptid' => $attempt->id]));
+        $this->assertFalse($DB->record_exists('quizaccess_examfocuslive_att', ['attemptid' => $attempt->id]));
+        $this->assertFalse($DB->record_exists('quizaccess_examfocuslive_evt', ['attemptid' => $attempt->id]));
         $this->assertTrue($DB->record_exists('quiz_attempts', ['id' => $attempt->id, 'state' => quiz_attempt::ABANDONED]));
     }
 
@@ -272,7 +272,7 @@ final class attempt_lifecycle_test extends advanced_testcase {
 
         $result = state_manager::focus_lost($attempt->id, $student->id, 'blur', 'exempt-event');
         $this->assertFalse($result->paused);
-        $this->assertFalse($DB->record_exists('quizaccess_efl_attempt', ['attemptid' => $attempt->id]));
+        $this->assertFalse($DB->record_exists('quizaccess_examfocuslive_att', ['attemptid' => $attempt->id]));
         $this->assertTrue(has_capability('mod/quiz:attempt', $context));
     }
 

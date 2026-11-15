@@ -34,8 +34,8 @@ class observer {
      */
     public static function attempt_deleted(\mod_quiz\event\attempt_deleted $event): void {
         global $DB;
-        $DB->delete_records('quizaccess_efl_event', ['attemptid' => $event->objectid]);
-        $DB->delete_records('quizaccess_efl_attempt', ['attemptid' => $event->objectid]);
+        $DB->delete_records('quizaccess_examfocuslive_evt', ['attemptid' => $event->objectid]);
+        $DB->delete_records('quizaccess_examfocuslive_att', ['attemptid' => $event->objectid]);
     }
 
     /**
@@ -44,10 +44,10 @@ class observer {
      */
     public static function attempt_ended(\core\event\base $event): void {
         global $DB;
-        $record = $DB->get_record('quizaccess_efl_attempt', ['attemptid' => $event->objectid]);
+        $record = $DB->get_record('quizaccess_examfocuslive_att', ['attemptid' => $event->objectid]);
         if ($record && !in_array($record->status, [state_manager::STATUS_COMPLETED, state_manager::STATUS_TERMINATED], true)) {
             $now = (int) $event->timecreated;
-            $DB->update_record('quizaccess_efl_attempt', (object) [
+            $DB->update_record('quizaccess_examfocuslive_att', (object) [
                 'id' => $record->id,
                 'status' => state_manager::STATUS_COMPLETED,
                 'pausedseconds' => $record->pausedseconds + ($record->pausedat ? max(0, $now - $record->pausedat) : 0),
@@ -59,4 +59,3 @@ class observer {
         }
     }
 }
-

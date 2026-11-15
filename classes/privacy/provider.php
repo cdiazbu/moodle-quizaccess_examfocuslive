@@ -42,7 +42,7 @@ defined('MOODLE_INTERNAL') || die();
 class provider implements metadata_provider, request_provider, core_userlist_provider {
     /** @inheritdoc */
     public static function get_metadata(collection $collection): collection {
-        $collection->add_database_table('quizaccess_efl_attempt', [
+        $collection->add_database_table('quizaccess_examfocuslive_att', [
             'userid' => 'privacy:metadata:attempt:userid',
             'attemptid' => 'privacy:metadata:attempt:attemptid',
             'status' => 'privacy:metadata:attempt:status',
@@ -62,7 +62,7 @@ class provider implements metadata_provider, request_provider, core_userlist_pro
             'timecreated' => 'privacy:metadata:attempt:timecreated',
             'timemodified' => 'privacy:metadata:attempt:timemodified',
         ], 'privacy:metadata:attempt');
-        $collection->add_database_table('quizaccess_efl_event', [
+        $collection->add_database_table('quizaccess_examfocuslive_evt', [
             'userid' => 'privacy:metadata:attempt:userid',
             'attemptid' => 'privacy:metadata:attempt:attemptid',
             'eventtype' => 'privacy:metadata:event:eventtype',
@@ -80,9 +80,9 @@ class provider implements metadata_provider, request_provider, core_userlist_pro
                   FROM {context} ctx
                   JOIN {course_modules} cm ON cm.id = ctx.instanceid AND ctx.contextlevel = :contextlevel
                   JOIN {modules} m ON m.id = cm.module AND m.name = :modname
-                 WHERE EXISTS (SELECT 1 FROM {quizaccess_efl_attempt} a
+                 WHERE EXISTS (SELECT 1 FROM {quizaccess_examfocuslive_att} a
                                 WHERE a.quizid = cm.instance AND (a.userid = :owner OR a.decisionby = :decider))
-                    OR EXISTS (SELECT 1 FROM {quizaccess_efl_event} e
+                    OR EXISTS (SELECT 1 FROM {quizaccess_examfocuslive_evt} e
                                 WHERE e.quizid = cm.instance AND (e.userid = :subject OR e.actorid = :actor))";
         $params = [
             'contextlevel' => CONTEXT_MODULE,
@@ -107,15 +107,15 @@ class provider implements metadata_provider, request_provider, core_userlist_pro
             if (!$cm) {
                 continue;
             }
-            $attempts = $DB->get_records('quizaccess_efl_attempt', [
+            $attempts = $DB->get_records('quizaccess_examfocuslive_att', [
                 'quizid' => $cm->instance,
                 'userid' => $userid,
             ]);
-            $events = $DB->get_records('quizaccess_efl_event', [
+            $events = $DB->get_records('quizaccess_examfocuslive_evt', [
                 'quizid' => $cm->instance,
                 'userid' => $userid,
             ], 'eventtime ASC, id ASC');
-            $decisions = $DB->get_records('quizaccess_efl_event', [
+            $decisions = $DB->get_records('quizaccess_examfocuslive_evt', [
                 'quizid' => $cm->instance,
                 'actorid' => $userid,
             ], 'eventtime ASC, id ASC', 'id, eventtype, eventtime');
@@ -145,8 +145,8 @@ class provider implements metadata_provider, request_provider, core_userlist_pro
         if (!$cm) {
             return;
         }
-        $DB->delete_records('quizaccess_efl_event', ['quizid' => $cm->instance]);
-        $DB->delete_records('quizaccess_efl_attempt', ['quizid' => $cm->instance]);
+        $DB->delete_records('quizaccess_examfocuslive_evt', ['quizid' => $cm->instance]);
+        $DB->delete_records('quizaccess_examfocuslive_att', ['quizid' => $cm->instance]);
     }
 
     /** @inheritdoc */
@@ -172,10 +172,10 @@ class provider implements metadata_provider, request_provider, core_userlist_pro
         if (!$cm) {
             return;
         }
-        foreach (['quizaccess_efl_attempt', 'quizaccess_efl_event'] as $table) {
+        foreach (['quizaccess_examfocuslive_att', 'quizaccess_examfocuslive_evt'] as $table) {
             $userlist->add_from_sql('userid', "SELECT userid FROM {{$table}} WHERE quizid = :quizid", ['quizid' => $cm->instance]);
         }
-        foreach (['quizaccess_efl_attempt' => 'decisionby', 'quizaccess_efl_event' => 'actorid'] as $table => $field) {
+        foreach (['quizaccess_examfocuslive_att' => 'decisionby', 'quizaccess_examfocuslive_evt' => 'actorid'] as $table => $field) {
             $userlist->add_from_sql(
                 $field,
                 "SELECT $field FROM {{$table}} WHERE quizid = :quizid AND $field > 0",
@@ -205,7 +205,7 @@ class provider implements metadata_provider, request_provider, core_userlist_pro
         [$insql, $params] = $DB->get_in_or_equal($userids, SQL_PARAMS_NAMED, 'eflprivacy');
         $params['quizid'] = $quizid;
         $transaction = $DB->start_delegated_transaction();
-        foreach (['quizaccess_efl_event' => 'actorid', 'quizaccess_efl_attempt' => 'decisionby'] as $table => $field) {
+        foreach (['quizaccess_examfocuslive_evt' => 'actorid', 'quizaccess_examfocuslive_att' => 'decisionby'] as $table => $field) {
             $DB->delete_records_select($table, "quizid = :quizid AND userid $insql", $params);
             $DB->set_field_select($table, $field, 0, "quizid = :quizid AND $field $insql", $params);
         }
@@ -239,4 +239,3 @@ class provider implements metadata_provider, request_provider, core_userlist_pro
         return $record;
     }
 }
-

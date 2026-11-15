@@ -45,7 +45,7 @@ class cleanup extends \core\task\scheduled_task {
         }
 
         $cutoff = time() - $days * DAYSECS;
-        foreach (['quizaccess_efl_event' => 'eventtime', 'quizaccess_efl_attempt' => 'timemodified'] as $table => $field) {
+        foreach (['quizaccess_examfocuslive_evt' => 'eventtime', 'quizaccess_examfocuslive_att' => 'timemodified'] as $table => $field) {
             do {
                 $records = $DB->get_records_sql(
                     "SELECT data.id

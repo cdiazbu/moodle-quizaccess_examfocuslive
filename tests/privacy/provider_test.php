@@ -58,11 +58,11 @@ final class provider_test extends provider_testcase {
             $attemptid = $DB->insert_record('quiz_attempts', (object) [
                 'quiz' => $quizid, 'userid' => $student->id, 'attempt' => 1, 'uniqueid' => $usage->get_id(), 'layout' => '0',
             ]);
-            $DB->insert_record('quizaccess_efl_attempt', (object) [
+            $DB->insert_record('quizaccess_examfocuslive_att', (object) [
                 'attemptid' => $attemptid, 'quizid' => $quizid, 'userid' => $student->id,
                 'decisionby' => $teacher->id, 'timecreated' => $now, 'timemodified' => $now,
             ]);
-            $eventids[$quizid] = $DB->insert_record('quizaccess_efl_event', (object) [
+            $eventids[$quizid] = $DB->insert_record('quizaccess_examfocuslive_evt', (object) [
                 'attemptid' => $attemptid, 'quizid' => $quizid, 'userid' => $student->id,
                 'eventtype' => 'resumed', 'eventtime' => $now, 'actorid' => $teacher->id, 'eventtoken' => 'internal',
             ]);
@@ -92,13 +92,13 @@ final class provider_test extends provider_testcase {
         $this->assertArrayNotHasKey('eventtoken', (array) $studentdata->events[0]);
 
         provider::delete_data_for_user($teacherrequest);
-        $this->assertSame(0, (int) $DB->get_field('quizaccess_efl_event', 'actorid', ['id' => $eventids[$quiz->id]]));
-        $this->assertTrue($DB->record_exists('quizaccess_efl_attempt', ['quizid' => $quiz->id, 'decisionby' => 0]));
-        $this->assertTrue($DB->record_exists('quizaccess_efl_attempt', ['quizid' => $otherquiz->id, 'decisionby' => $teacher->id]));
+        $this->assertSame(0, (int) $DB->get_field('quizaccess_examfocuslive_evt', 'actorid', ['id' => $eventids[$quiz->id]]));
+        $this->assertTrue($DB->record_exists('quizaccess_examfocuslive_att', ['quizid' => $quiz->id, 'decisionby' => 0]));
+        $this->assertTrue($DB->record_exists('quizaccess_examfocuslive_att', ['quizid' => $otherquiz->id, 'decisionby' => $teacher->id]));
 
         provider::delete_data_for_users(new approved_userlist($ctx, $component, [$student->id]));
-        $this->assertFalse($DB->record_exists('quizaccess_efl_attempt', ['quizid' => $quiz->id]));
-        $this->assertFalse($DB->record_exists('quizaccess_efl_event', ['id' => $eventids[$quiz->id]]));
-        $this->assertTrue($DB->record_exists('quizaccess_efl_event', ['id' => $eventids[$otherquiz->id]]));
+        $this->assertFalse($DB->record_exists('quizaccess_examfocuslive_att', ['quizid' => $quiz->id]));
+        $this->assertFalse($DB->record_exists('quizaccess_examfocuslive_evt', ['id' => $eventids[$quiz->id]]));
+        $this->assertTrue($DB->record_exists('quizaccess_examfocuslive_evt', ['id' => $eventids[$otherquiz->id]]));
     }
 }

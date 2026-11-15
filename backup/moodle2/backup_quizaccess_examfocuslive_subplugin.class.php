@@ -41,8 +41,7 @@ class backup_quizaccess_examfocuslive_subplugin extends backup_mod_quiz_access_s
         ]);
         $subplugin->add_child($wrapper);
         $wrapper->add_child($settings);
-        $settings->set_source_table('quizaccess_efl_quiz', ['quizid' => backup::VAR_ACTIVITYID]);
+        $settings->set_source_table('quizaccess_examfocuslive_cfg', ['quizid' => backup::VAR_ACTIVITYID]);
         return $subplugin;
     }
 }
-

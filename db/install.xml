@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <XMLDB PATH="mod/quiz/accessrule/examfocuslive/db" VERSION="2026111409" COMMENT="XMLDB file for quizaccess_examfocuslive">
   <TABLES>
-    <TABLE NAME="quizaccess_efl_quiz" COMMENT="Configuration per quiz">
+    <TABLE NAME="quizaccess_examfocuslive_cfg" COMMENT="Configuration per quiz">
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
         <FIELD NAME="quizid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
@@ -22,7 +22,7 @@
         <INDEX NAME="quizuniq" UNIQUE="true" FIELDS="quizid"/>
       </INDEXES>
     </TABLE>
-    <TABLE NAME="quizaccess_efl_attempt" COMMENT="Live state for monitored quiz attempts">
+    <TABLE NAME="quizaccess_examfocuslive_att" COMMENT="Live state for monitored quiz attempts">
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
         <FIELD NAME="attemptid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
@@ -57,7 +57,7 @@
         <INDEX NAME="heartbeatidx" UNIQUE="false" FIELDS="lastheartbeat"/>
       </INDEXES>
     </TABLE>
-    <TABLE NAME="quizaccess_efl_event" COMMENT="Audit trail of monitoring events and teacher decisions">
+    <TABLE NAME="quizaccess_examfocuslive_evt" COMMENT="Audit trail of monitoring events and teacher decisions">
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
         <FIELD NAME="attemptid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
@@ -82,4 +82,3 @@
     </TABLE>
   </TABLES>
 </XMLDB>
-

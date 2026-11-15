@@ -123,13 +123,13 @@ class quizaccess_examfocuslive extends access_rule_base {
             'heartbeat' => min(10, max(2, (int) ($quiz->examfocuslive_heartbeat ?? 5))),
             'timemodified' => $now,
         ];
-        $existing = $DB->get_record('quizaccess_efl_quiz', ['quizid' => $quiz->id]);
+        $existing = $DB->get_record('quizaccess_examfocuslive_cfg', ['quizid' => $quiz->id]);
         if ($existing) {
             $values->id = $existing->id;
-            $DB->update_record('quizaccess_efl_quiz', $values);
+            $DB->update_record('quizaccess_examfocuslive_cfg', $values);
         } else {
             $values->timecreated = $now;
-            $DB->insert_record('quizaccess_efl_quiz', $values);
+            $DB->insert_record('quizaccess_examfocuslive_cfg', $values);
         }
     }
 
@@ -139,7 +139,7 @@ class quizaccess_examfocuslive extends access_rule_base {
             'efl.enabled AS examfocuslive_enabled, efl.displaymode AS examfocuslive_displaymode, ' .
                 'efl.autopause AS examfocuslive_autopause, efl.showprogress AS examfocuslive_showprogress, ' .
                 'efl.heartbeat AS examfocuslive_heartbeat, efl.gracems AS examfocuslive_gracems',
-            'LEFT JOIN {quizaccess_efl_quiz} efl ON efl.quizid = quiz.id',
+            'LEFT JOIN {quizaccess_examfocuslive_cfg} efl ON efl.quizid = quiz.id',
             [],
         ];
     }
@@ -148,9 +148,9 @@ class quizaccess_examfocuslive extends access_rule_base {
     public static function delete_settings($quiz) {
         global $DB;
         $quizid = is_object($quiz) ? $quiz->id : $quiz;
-        $DB->delete_records('quizaccess_efl_event', ['quizid' => $quizid]);
-        $DB->delete_records('quizaccess_efl_attempt', ['quizid' => $quizid]);
-        $DB->delete_records('quizaccess_efl_quiz', ['quizid' => $quizid]);
+        $DB->delete_records('quizaccess_examfocuslive_evt', ['quizid' => $quizid]);
+        $DB->delete_records('quizaccess_examfocuslive_att', ['quizid' => $quizid]);
+        $DB->delete_records('quizaccess_examfocuslive_cfg', ['quizid' => $quizid]);
     }
 
     /**
@@ -188,7 +188,7 @@ class quizaccess_examfocuslive extends access_rule_base {
             return false;
         }
         $sql = "SELECT efl.id, efl.status, efl.pausedbyteacher
-                  FROM {quizaccess_efl_attempt} efl
+                  FROM {quizaccess_examfocuslive_att} efl
                   JOIN {quiz_attempts} qa ON qa.id = efl.attemptid
                  WHERE efl.quizid = :quizid
                    AND efl.userid = :userid

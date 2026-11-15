@@ -41,7 +41,7 @@ function quizaccess_examfocuslive_extend_navigation_module($navigation, $course,
     if (!has_capability('quizaccess/examfocuslive:monitor', $context)) {
         return;
     }
-    if (!$DB->record_exists('quizaccess_efl_quiz', ['quizid' => $cm->instance, 'enabled' => 1])) {
+    if (!$DB->record_exists('quizaccess_examfocuslive_cfg', ['quizid' => $cm->instance, 'enabled' => 1])) {
         return;
     }
     $navigation->add(
@@ -53,4 +53,3 @@ function quizaccess_examfocuslive_extend_navigation_module($navigation, $course,
         new pix_icon('i/monitor', '')
     );
 }
-

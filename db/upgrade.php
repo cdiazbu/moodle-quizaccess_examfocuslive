@@ -68,6 +68,21 @@ function xmldb_quizaccess_examfocuslive_upgrade(int $oldversion): bool {
         upgrade_plugin_savepoint(true, 2026111409, 'quizaccess', 'examfocuslive');
     }
 
+    if ($oldversion < 2026111500) {
+        $manager = $DB->get_manager();
+        $tables = [
+            'quizaccess_efl_quiz' => 'quizaccess_examfocuslive_cfg',
+            'quizaccess_efl_attempt' => 'quizaccess_examfocuslive_att',
+            'quizaccess_efl_event' => 'quizaccess_examfocuslive_evt',
+        ];
+        foreach ($tables as $oldname => $newname) {
+            $table = new xmldb_table($oldname);
+            if ($manager->table_exists($table)) {
+                $manager->rename_table($table, $newname);
+            }
+        }
+        upgrade_plugin_savepoint(true, 2026111500, 'quizaccess', 'examfocuslive');
+    }
+
     return true;
 }
-

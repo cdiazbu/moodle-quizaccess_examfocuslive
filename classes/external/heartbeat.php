@@ -106,4 +106,3 @@ class heartbeat extends external_api {
         ]);
     }
 }
-

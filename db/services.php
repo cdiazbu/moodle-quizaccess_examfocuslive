@@ -61,4 +61,3 @@ $functions = [
         'capabilities' => 'quizaccess/examfocuslive:manage, quizaccess/examfocuslive:monitor',
     ],
 ];
-

@@ -46,9 +46,8 @@ class restore_quizaccess_examfocuslive_subplugin extends restore_mod_quiz_access
         $record->quizid = $this->get_new_parentid('quiz');
         $record->timecreated = time();
         $record->timemodified = time();
-        if (!$DB->record_exists('quizaccess_efl_quiz', ['quizid' => $record->quizid])) {
-            $DB->insert_record('quizaccess_efl_quiz', $record);
+        if (!$DB->record_exists('quizaccess_examfocuslive_cfg', ['quizid' => $record->quizid])) {
+            $DB->insert_record('quizaccess_examfocuslive_cfg', $record);
         }
     }
 }
-

@@ -55,7 +55,7 @@ class state_manager {
      */
     public static function get_quiz_config(int $quizid): ?stdClass {
         global $DB;
-        $record = $DB->get_record('quizaccess_efl_quiz', ['quizid' => $quizid, 'enabled' => 1]);
+        $record = $DB->get_record('quizaccess_examfocuslive_cfg', ['quizid' => $quizid, 'enabled' => 1]);
         return $record ?: null;
     }
 
@@ -101,7 +101,7 @@ class state_manager {
      */
     public static function ensure_live_attempt(stdClass $attempt): stdClass {
         global $DB;
-        $record = $DB->get_record('quizaccess_efl_attempt', ['attemptid' => $attempt->id]);
+        $record = $DB->get_record('quizaccess_examfocuslive_att', ['attemptid' => $attempt->id]);
         if ($record) {
             return $record;
         }
@@ -127,7 +127,7 @@ class state_manager {
             'timecreated' => $now,
             'timemodified' => $now,
         ];
-        $record->id = $DB->insert_record('quizaccess_efl_attempt', $record);
+        $record->id = $DB->insert_record('quizaccess_examfocuslive_att', $record);
         return $record;
     }
 
@@ -197,7 +197,7 @@ class state_manager {
             }
             require_capability('mod/quiz:attempt', $context, $userid);
             if ($attempt->state !== 'inprogress') {
-                $previous = $DB->get_record('quizaccess_efl_attempt', ['attemptid' => $attemptid]);
+                $previous = $DB->get_record('quizaccess_examfocuslive_att', ['attemptid' => $attemptid]);
                 $status = match (true) {
                     ($previous->status ?? '') === self::STATUS_TERMINATED => self::STATUS_TERMINATED,
                     $attempt->state === 'overdue' => 'overdue',
@@ -233,7 +233,7 @@ class state_manager {
                 $ignorelimit = has_capability('mod/quiz:ignoretimelimits', $context, $userid);
                 $deadline = self::deadline($attempt, $quiz, $live, $now, $ignorelimit);
             }
-            $DB->update_record('quizaccess_efl_attempt', $updated);
+            $DB->update_record('quizaccess_examfocuslive_att', $updated);
             return self::client_state($live, $deadline);
         });
     }
@@ -255,7 +255,7 @@ class state_manager {
             }
             require_capability('mod/quiz:attempt', $context, $userid);
             if ($attempt->state !== 'inprogress') {
-                $previous = $DB->get_record('quizaccess_efl_attempt', ['attemptid' => $attemptid]);
+                $previous = $DB->get_record('quizaccess_examfocuslive_att', ['attemptid' => $attemptid]);
                 $status = match (true) {
                     ($previous->status ?? '') === self::STATUS_TERMINATED => self::STATUS_TERMINATED,
                     $attempt->state === 'overdue' => 'overdue',
@@ -270,7 +270,7 @@ class state_manager {
             $now = \core\di::get(\core\clock::class)->time();
             $eventkey = ['attemptid' => $attemptid, 'eventtoken' => $token];
             if ($live->status !== self::STATUS_ACTIVE ||
-                    ($token !== '' && $DB->record_exists('quizaccess_efl_event', $eventkey)) ||
+                    ($token !== '' && $DB->record_exists('quizaccess_examfocuslive_evt', $eventkey)) ||
                     ($token === '' && $live->lastviolation >= $now - 1)) {
                 return self::client_state($live);
             }
@@ -286,7 +286,7 @@ class state_manager {
             $live->lastviolation = $now;
             $live->lostfocuscount++;
             $live->timemodified = $now;
-            $DB->update_record('quizaccess_efl_attempt', $live);
+            $DB->update_record('quizaccess_examfocuslive_att', $live);
             self::log_event($attempt, $eventtype, $userid, $token);
             if ($live->status === self::STATUS_PAUSED) {
                 $deadline = self::deadline($attempt, $quiz, $live, $now, $ignorelimit);
@@ -358,7 +358,7 @@ class state_manager {
             }
             $live->decisionby = $actorid;
             $live->timemodified = $now;
-            $DB->update_record('quizaccess_efl_attempt', $live);
+            $DB->update_record('quizaccess_examfocuslive_att', $live);
             if ($action === 'terminate') {
                 self::finish_quiz_attempt($attemptid, $now);
                 $deadline = null;
@@ -439,7 +439,7 @@ class state_manager {
         if (empty($attempt->id) || !empty($attempt->preview)) {
             return $attempt->timestart + $quiz->timelimit;
         }
-        $live = $DB->get_record('quizaccess_efl_attempt', ['attemptid' => $attempt->id]);
+        $live = $DB->get_record('quizaccess_examfocuslive_att', ['attemptid' => $attempt->id]);
         if (!$live) {
             return $attempt->timestart + $quiz->timelimit;
         }
@@ -492,7 +492,7 @@ class state_manager {
                            FROM {quiz_attempts} qa2
                           WHERE qa2.quiz = :quizid AND qa2.userid = u.id AND qa2.preview = 0
                        )
-             LEFT JOIN {quizaccess_efl_attempt} efl ON efl.attemptid = qa.id
+             LEFT JOIN {quizaccess_examfocuslive_att} efl ON efl.attemptid = qa.id
                  WHERE u.deleted = 0 AND u.suspended = 0 $groupclause
               ORDER BY u.lastname, u.firstname, u.id";
         $records = $DB->get_records_sql($sql, $params);
@@ -612,7 +612,7 @@ class state_manager {
      */
     private static function log_event(stdClass $attempt, string $eventtype, int $actorid, string $token = ''): void {
         global $DB;
-        $DB->insert_record('quizaccess_efl_event', (object) [
+        $DB->insert_record('quizaccess_examfocuslive_evt', (object) [
             'attemptid' => $attempt->id,
             'quizid' => $attempt->quiz,
             'userid' => $attempt->userid,

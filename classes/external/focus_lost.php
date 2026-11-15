@@ -82,4 +82,3 @@ class focus_lost extends external_api {
         return heartbeat::state_structure();
     }
 }
-
