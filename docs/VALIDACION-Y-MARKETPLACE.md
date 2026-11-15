@@ -1,6 +1,6 @@
-# CD Live Exam Control 0.3.5
+# CD Live Exam Control 0.3.6
 
-**Versión candidata para Moodle 4.5 · compilación 2026111410 · 14 de noviembre de 2026**
+**Versión candidata para Moodle 4.5 · compilación 2026111500 · 15 de noviembre de 2026**
 
 | Comprobación | Resultado |
 |---|---|
@@ -8,9 +8,9 @@
 | Validación local | Pruebas JavaScript del listado, la selección, la pausa docente, la reanudación, el periodo de gracia y el fin de intento. Sintaxis PHP y esquema XMLDB de Moodle 4.5 comprobados. |
 | PHP y estructura | Sintaxis PHP 8.2.34 comprobada en 25 archivos y 117 cadenas de idioma coincidentes. `db/install.xml` supera la validación con el esquema XMLDB de Moodle 4.5. |
 | Privacidad y retención | Ocho comprobaciones locales sobre datos ficticios con PHP y SQLite. Cubren la declaración de campos, la localización de usuarios y contextos, las exportaciones, el borrado del docente y del alumno y la retención de intentos abandonados. |
-| Moodle 4.5 con MariaDB y PostgreSQL | Pendiente de ejecución en Moodle Plugin CI. La suite de integración incluye tiempo individual, decisiones obsoletas, entrega y calificación, grupos, privacidad y retención. |
+| Moodle 4.5 con MariaDB y PostgreSQL | Consulta [Moodle Plugin CI](https://github.com/cdiazbu/moodle-quizaccess_examfocuslive/actions) para comprobar el resultado de cada motor. La suite de integración incluye tiempo individual, decisiones obsoletas, entrega y calificación, grupos, privacidad y retención. |
 | Prueba en el clon | Usar las cuentas ficticias de la prueba y el procedimiento de este documento. |
-| Repositorio público | Pendiente de creación y sincronización en `cdiazbu/moodle-quizaccess_examfocuslive`. |
+| Repositorio público | [Código y seguimiento de incidencias en GitHub](https://github.com/cdiazbu/moodle-quizaccess_examfocuslive). |
 
 El mínimo técnico heredado en `version.php` es Moodle 4.4. La matriz inicial tiene como objetivo Moodle 4.5 y se declarará esa rama cuando superen las pruebas el paquete y la instalación real.
 

@@ -436,7 +436,7 @@ class state_manager {
         if (empty($quiz->timelimit) || has_capability('mod/quiz:ignoretimelimits', $context, $attempt->userid)) {
             return false;
         }
-        if (!empty($attempt->preview)) {
+        if (empty($attempt->id) || !empty($attempt->preview)) {
             return $attempt->timestart + $quiz->timelimit;
         }
         $live = $DB->get_record('quizaccess_efl_attempt', ['attemptid' => $attempt->id]);

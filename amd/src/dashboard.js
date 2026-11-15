@@ -106,9 +106,12 @@ const studentCard = (student) => {
     const showPhoto = displaymode !== 'name' && student.pictureurl;
     const showName = displaymode !== 'photo' || !showPhoto;
     const alert = student.rawstatus === 'paused';
-    const question = !student.page ? "—" : student.questionlabel
-        ? `${escapeHtml(config.strings.page)} ${student.page} · ${escapeHtml(student.questionlabel)}`
-        : `${escapeHtml(config.strings.page)} ${student.page}`;
+    const page = `${escapeHtml(config.strings.page)} ${student.page}`;
+    const location = student.questionlabel ? `${page} · ${escapeHtml(student.questionlabel)}` : page;
+    const question = student.page ? location : '—';
+    const incidentClass = student.incidents ? 'efl-danger' : '';
+    const elapsed = formatDuration(student.elapsed);
+    const lastSeen = student.lastseen ? escapeHtml(formatAgo(student.secondsago)) : '—';
     return `<article class="efl-card efl-card--${student.status}${alert ? ' is-alert' : ''}" data-student-card="${student.userid}">
         ${alert ? `<div class="efl-card__alertbar"><span aria-hidden="true">!</span>
             ${escapeHtml(student.manualpause ? config.strings.teacherpaused : config.strings.pausedalert)}</div>` : ''}
@@ -124,9 +127,9 @@ const studentCard = (student) => {
         </div>
         <div class="efl-card__details">
             <div><span>${escapeHtml(config.strings.location)}</span><strong>${question}</strong></div>
-            <div><span>${escapeHtml(config.strings.activeelapsed)}</span><strong class="efl-mono">${formatDuration(student.elapsed)}</strong></div>
-            <div><span>${escapeHtml(config.strings.incidents)}</span><strong class="${student.incidents ? 'efl-danger' : ''}">${student.incidents}</strong></div>
-            <div><span>${escapeHtml(config.strings.lastseen)}</span><strong>${student.lastseen ? escapeHtml(formatAgo(student.secondsago)) : '—'}</strong></div>
+            <div><span>${escapeHtml(config.strings.activeelapsed)}</span><strong class="efl-mono">${elapsed}</strong></div>
+            <div><span>${escapeHtml(config.strings.incidents)}</span><strong class="${incidentClass}">${student.incidents}</strong></div>
+            <div><span>${escapeHtml(config.strings.lastseen)}</span><strong>${lastSeen}</strong></div>
         </div>
         ${actionButtons(student)}
     </article>`;
@@ -149,8 +152,8 @@ const compactCard = (student) => {
     const showPhoto = displaymode !== 'name' && student.pictureurl;
     const showName = displaymode !== 'photo' || !showPhoto;
     const outOfFocus = student.status === 'active' && student.focusstate === 'blurred';
-    const status = student.manualpause ? config.strings.teacherpaused
-        : outOfFocus ? config.strings.unfocused : statusLabel(student.status);
+    const browserStatus = outOfFocus ? config.strings.unfocused : statusLabel(student.status);
+    const status = student.manualpause ? config.strings.teacherpaused : browserStatus;
     const signal = student.lastseen ? formatAgo(student.secondsago) : '';
     const question = student.page ? escapeHtml(`${config.strings.page} ${student.page}`) : '';
     const progress = student.page && student.progress >= 0 ? `${student.progress}%` : '';

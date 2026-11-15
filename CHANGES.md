@@ -3,6 +3,7 @@
 ## 0.3.6 - 2026-11-15
 
 - Return to the quiz through its native link even when fullscreen exit is delayed or denied.
+- Keep Moodle’s normal timer when a quiz attempt is created before it has a database ID.
 - Preserve modified link clicks and clean up the expanded dashboard when leaving it.
 
 ## 0.3.5 - 2026-11-14
