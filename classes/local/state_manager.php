@@ -33,8 +33,6 @@ use moodle_exception;
 use stdClass;
 use user_picture;
 
-defined('MOODLE_INTERNAL') || die();
-
 /**
  * Domain service for monitored attempts.
  *
@@ -42,9 +40,13 @@ defined('MOODLE_INTERNAL') || die();
  * make pause/resume behaviour atomic and auditable.
  */
 class state_manager {
+    /** @var string Status for a active attempt. */
     public const STATUS_ACTIVE = 'active';
+    /** @var string Status for a paused attempt. */
     public const STATUS_PAUSED = 'paused';
+    /** @var string Status for a terminated attempt. */
     public const STATUS_TERMINATED = 'terminated';
+    /** @var string Status for a completed attempt. */
     public const STATUS_COMPLETED = 'completed';
 
     /**
@@ -189,7 +191,13 @@ class state_manager {
     ): stdClass {
         global $DB;
         return self::with_attempt_lock($attemptid, static function () use (
-            $DB, $attemptid, $userid, $page, $progress, $questionlabel, $focusstate
+            $DB,
+            $attemptid,
+            $userid,
+            $page,
+            $progress,
+            $questionlabel,
+            $focusstate
         ): stdClass {
             [$attempt, , , $context] = self::resolve_attempt($attemptid, $userid);
             if (!self::can_monitor($attempt, $context)) {
@@ -269,9 +277,11 @@ class state_manager {
             $live = self::ensure_live_attempt($attempt);
             $now = \core\di::get(\core\clock::class)->time();
             $eventkey = ['attemptid' => $attemptid, 'eventtoken' => $token];
-            if ($live->status !== self::STATUS_ACTIVE ||
+            if (
+                $live->status !== self::STATUS_ACTIVE ||
                     ($token !== '' && $DB->record_exists('quizaccess_examfocuslive_evt', $eventkey)) ||
-                    ($token === '' && $live->lastviolation >= $now - 1)) {
+                    ($token === '' && $live->lastviolation >= $now - 1)
+            ) {
                 return self::client_state($live);
             }
 
@@ -311,7 +321,12 @@ class state_manager {
             throw new moodle_exception('errorinvalidaction', 'quizaccess_examfocuslive');
         }
         return self::with_attempt_lock($attemptid, static function () use (
-            $DB, $attemptid, $action, $actorid, $revision, $cmid
+            $DB,
+            $attemptid,
+            $action,
+            $actorid,
+            $revision,
+            $cmid
         ): stdClass {
             [$attempt, , $cm, $context] = self::resolve_attempt($attemptid);
             if ($cmid !== null && (int) $cm->id !== $cmid) {
@@ -320,10 +335,12 @@ class state_manager {
             require_capability('quizaccess/examfocuslive:manage', $context);
             require_capability('quizaccess/examfocuslive:monitor', $context);
             $allowed = self::allowed_students($cm, $context, true);
-            if (($allowed !== null && !in_array((int) $attempt->userid, $allowed, true)) ||
+            if (
+                ($allowed !== null && !in_array((int) $attempt->userid, $allowed, true)) ||
                     !is_enrolled($context, $attempt->userid, 'mod/quiz:attempt', true) ||
                     !$DB->record_exists('user', ['id' => $attempt->userid, 'deleted' => 0, 'suspended' => 0]) ||
-                    !get_fast_modinfo($cm->course, $attempt->userid)->get_cm($cm->id)->uservisible) {
+                    !get_fast_modinfo($cm->course, $attempt->userid)->get_cm($cm->id)->uservisible
+            ) {
                 throw new moodle_exception('errorinvalidattempt', 'quizaccess_examfocuslive');
             }
             if ($attempt->state !== 'inprogress' || !self::can_monitor($attempt, $context)) {
@@ -331,9 +348,11 @@ class state_manager {
             }
             $live = self::ensure_live_attempt($attempt);
             $paused = $live->status === self::STATUS_PAUSED;
-            if ($revision !== (int) $live->controlrevision ||
+            if (
+                $revision !== (int) $live->controlrevision ||
                     (!$paused && $live->status !== self::STATUS_ACTIVE) ||
-                    ($action === 'resume' && !$paused) || ($action === 'pause' && $paused)) {
+                    ($action === 'resume' && !$paused) || ($action === 'pause' && $paused)
+            ) {
                 throw new moodle_exception('staleaction', 'quizaccess_examfocuslive');
             }
             $quiz = quiz_settings::create((int) $attempt->quiz, (int) $attempt->userid)->get_quiz();
@@ -411,8 +430,10 @@ class state_manager {
     private static function allowed_students(stdClass $cm, context_module $context, bool $write = false): ?array {
         global $DB, $USER;
         $mode = groups_get_activity_groupmode($cm);
-        if (has_capability('moodle/site:accessallgroups', $context) ||
-                ($mode !== SEPARATEGROUPS && !($write && $mode === VISIBLEGROUPS))) {
+        if (
+            has_capability('moodle/site:accessallgroups', $context) ||
+                ($mode !== SEPARATEGROUPS && !($write && $mode === VISIBLEGROUPS))
+        ) {
             return null;
         }
         $groups = groups_get_all_groups($cm->course, $USER->id, $cm->groupingid, 'g.id', false, true);

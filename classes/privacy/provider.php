@@ -36,11 +36,11 @@ use core_privacy\local\request\plugin\provider as request_provider;
 use core_privacy\local\request\transform;
 use core_privacy\local\request\writer;
 
-defined('MOODLE_INTERNAL') || die();
-
-/** Privacy implementation for monitoring and audit data. */
-class provider implements metadata_provider, request_provider, core_userlist_provider {
-    /** @inheritdoc */
+/**
+ * Provide access to monitoring data through the Moodle Privacy API.
+ */
+class provider implements core_userlist_provider, metadata_provider, request_provider {
+    /** Declare the monitoring data stored by the plugin. */
     public static function get_metadata(collection $collection): collection {
         $collection->add_database_table('quizaccess_examfocuslive_att', [
             'userid' => 'privacy:metadata:attempt:userid',
@@ -74,7 +74,7 @@ class provider implements metadata_provider, request_provider, core_userlist_pro
         return $collection;
     }
 
-    /** @inheritdoc */
+    /** Find quiz contexts associated with a student or teacher. */
     public static function get_contexts_for_userid(int $userid): contextlist {
         $sql = "SELECT ctx.id
                   FROM {context} ctx
@@ -95,7 +95,7 @@ class provider implements metadata_provider, request_provider, core_userlist_pro
         return (new contextlist())->add_from_sql($sql, $params);
     }
 
-    /** @inheritdoc */
+    /** Export monitoring data from the approved quiz contexts. */
     public static function export_user_data(approved_contextlist $contextlist): void {
         global $DB;
         $userid = $contextlist->get_user()->id;
@@ -135,7 +135,7 @@ class provider implements metadata_provider, request_provider, core_userlist_pro
         }
     }
 
-    /** @inheritdoc */
+    /** Erase monitoring data for a quiz context. */
     public static function delete_data_for_all_users_in_context(\context $context): void {
         global $DB;
         if (!$context instanceof context_module) {
@@ -149,7 +149,7 @@ class provider implements metadata_provider, request_provider, core_userlist_pro
         $DB->delete_records('quizaccess_examfocuslive_att', ['quizid' => $cm->instance]);
     }
 
-    /** @inheritdoc */
+    /** Erase the user’s monitoring data in approved contexts. */
     public static function delete_data_for_user(approved_contextlist $contextlist): void {
         global $DB;
         $userid = $contextlist->get_user()->id;
@@ -165,7 +165,7 @@ class provider implements metadata_provider, request_provider, core_userlist_pro
         }
     }
 
-    /** @inheritdoc */
+    /** Find students and decision authors in the quiz context. */
     public static function get_users_in_context(userlist $userlist): void {
         $context = $userlist->get_context();
         $cm = $context instanceof context_module ? get_coursemodule_from_id('quiz', $context->instanceid) : false;
@@ -184,7 +184,7 @@ class provider implements metadata_provider, request_provider, core_userlist_pro
         }
     }
 
-    /** @inheritdoc */
+    /** Erase monitoring data for the approved users. */
     public static function delete_data_for_users(approved_userlist $userlist): void {
         $context = $userlist->get_context();
         $cm = $context instanceof context_module ? get_coursemodule_from_id('quiz', $context->instanceid) : false;

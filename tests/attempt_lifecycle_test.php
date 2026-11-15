@@ -76,7 +76,7 @@ final class attempt_lifecycle_test extends advanced_testcase {
         global $DB;
         $this->resetAfterTest();
         [$student, $teacher, $attempt, $quiz, $quizgen] = $this->create_monitored_attempt();
-        $quizgen->submit_responses($attempt->id, [1 => ['answer' => '1']], false, false);
+        $quizgen->submit_responses($attempt->id, [1 => get_string('true', 'qtype_truefalse')], false, false);
         $clock = $this->mock_clock_with_frozen((int) $attempt->timestart + 30);
         state_manager::focus_lost($attempt->id, $student->id, 'blur', 'submit-event');
         $clock->bump(20);
@@ -144,7 +144,7 @@ final class attempt_lifecycle_test extends advanced_testcase {
         $generator->enrol_user($other->id, $quiz->course, 'student');
         $this->setUser($other);
         $second = $quizgen->create_attempt($quiz->id, $other->id);
-        $quizgen->submit_responses($second->id, [1 => ['answer' => '1']], false, false);
+        $quizgen->submit_responses($second->id, [1 => get_string('true', 'qtype_truefalse')], false, false);
         [, , $outside, $outsidequiz] = $this->create_monitored_attempt();
         $generator->enrol_user($teacher->id, $outsidequiz->course, 'editingteacher');
 

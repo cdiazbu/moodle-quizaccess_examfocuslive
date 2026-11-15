@@ -32,9 +32,9 @@ use core_external\external_single_structure;
 use core_external\external_value;
 use quizaccess_examfocuslive\local\state_manager;
 
-defined('MOODLE_INTERNAL') || die();
-
-/** Batch teacher control endpoint with one result per attempt. */
+/**
+ * Apply a teacher decision to multiple quiz attempts.
+ */
 class bulk_control extends external_api {
     /**
      * Define the target quiz, action and confirmed attempt versions.

@@ -24,14 +24,16 @@
 
 namespace quizaccess_examfocuslive\task;
 
-defined('MOODLE_INTERNAL') || die();
-
-/** Keeps Moodle cron from expiring an attempt while a teacher decision is pending. */
+/**
+ * Maintain deadlines while an attempt is paused.
+ */
 class freeze_paused_deadlines extends \core\task\scheduled_task {
+    /** Return the task name shown in Moodle. */
     public function get_name(): string {
         return get_string('taskfreezedeadlines', 'quizaccess_examfocuslive');
     }
 
+    /** Run the scheduled monitoring maintenance. */
     public function execute(): void {
         // Moodle now recalculates the deadline using the access rule.
     }

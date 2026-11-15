@@ -24,9 +24,9 @@
 
 namespace quizaccess_examfocuslive\local;
 
-defined('MOODLE_INTERNAL') || die();
-
-/** Keeps monitoring records aligned with Moodle attempt lifecycle events. */
+/**
+ * Update monitoring in response to quiz attempt events.
+ */
 class observer {
     /**
      * Remove monitoring records after Moodle deletes the attempt.

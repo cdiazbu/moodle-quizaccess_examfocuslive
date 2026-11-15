@@ -220,7 +220,7 @@ echo $OUTPUT->header();
 
     <p class="efl-visible-count" data-visible-count></p>
     <section class="efl-student-grid" data-student-grid aria-busy="true">
-        <?php for ($i = 0; $i < 6; $i++): ?>
+        <?php for ($i = 0; $i < 6; $i++) : ?>
             <div class="efl-card efl-card--skeleton" aria-hidden="true"><span></span><span></span><span></span></div>
         <?php endfor; ?>
     </section>

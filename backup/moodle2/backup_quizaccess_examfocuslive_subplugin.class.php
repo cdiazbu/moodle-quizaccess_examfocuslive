@@ -26,8 +26,11 @@ defined('MOODLE_INTERNAL') || die();
 
 require_once($CFG->dirroot . '/mod/quiz/backup/moodle2/backup_mod_quiz_access_subplugin.class.php');
 
-/** Backup provider for CD Live Exam Control quiz settings. */
+/**
+ * Back up quiz monitoring settings.
+ */
 class backup_quizaccess_examfocuslive_subplugin extends backup_mod_quiz_access_subplugin {
+    /** Define the quiz settings structure. */
     protected function define_quiz_subplugin_structure() {
         $subplugin = $this->get_subplugin_element();
         $wrapper = new backup_nested_element($this->get_recommended_name());

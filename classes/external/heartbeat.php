@@ -30,9 +30,9 @@ use core_external\external_single_structure;
 use core_external\external_value;
 use quizaccess_examfocuslive\local\state_manager;
 
-defined('MOODLE_INTERNAL') || die();
-
-/** Browser heartbeat endpoint. */
+/**
+ * Update the monitoring state of a quiz attempt.
+ */
 class heartbeat extends external_api {
     /**
      * Describe the current position and focus reported by the browser.
@@ -66,7 +66,11 @@ class heartbeat extends external_api {
     ): array {
         global $USER;
         $params = self::validate_parameters(self::execute_parameters(), compact(
-            'attemptid', 'page', 'progress', 'questionlabel', 'focusstate'
+            'attemptid',
+            'page',
+            'progress',
+            'questionlabel',
+            'focusstate'
         ));
         [, , $cm, $context] = state_manager::resolve_attempt($params['attemptid'], $USER->id);
         require_login($cm->course, false, $cm);

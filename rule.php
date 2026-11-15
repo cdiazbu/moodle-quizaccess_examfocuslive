@@ -26,8 +26,6 @@ use mod_quiz\local\access_rule_base;
 use mod_quiz\quiz_settings;
 use quizaccess_examfocuslive\local\state_manager;
 
-defined('MOODLE_INTERNAL') || die();
-
 /**
  * CD Live Exam Control access rule.
  *
@@ -50,7 +48,7 @@ class quizaccess_examfocuslive extends access_rule_base {
         return new self($quizobj, $timenow);
     }
 
-    /** @inheritdoc */
+    /** Add monitoring settings to the quiz form. */
     public static function add_settings_form_fields($quizform, $mform) {
         $mform->addElement('header', 'examfocusliveheader', get_string('examfocusliveheader', 'quizaccess_examfocuslive'));
         $mform->setExpanded('examfocusliveheader', false);
@@ -98,16 +96,18 @@ class quizaccess_examfocuslive extends access_rule_base {
         $mform->hideIf('examfocuslive_heartbeat', 'examfocuslive_enabled', 'eq', 0);
     }
 
-    /** @inheritdoc */
+    /** Validate the submitted monitoring settings. */
     public static function validate_settings_form_fields(array $errors, array $data, $files, mod_quiz_mod_form $quizform) {
-        if (!empty($data['examfocuslive_enabled']) &&
-                (!empty($data['cdexamcontrolenabled']) || !empty($data['cdexamsaveenabled']))) {
+        if (
+            !empty($data['examfocuslive_enabled']) &&
+                (!empty($data['cdexamcontrolenabled']) || !empty($data['cdexamsaveenabled']))
+        ) {
             $errors['examfocuslive_enabled'] = get_string('conflictingmonitor', 'quizaccess_examfocuslive');
         }
         return $errors;
     }
 
-    /** @inheritdoc */
+    /** Save monitoring settings for the quiz. */
     public static function save_settings($quiz) {
         global $DB;
 
@@ -133,7 +133,7 @@ class quizaccess_examfocuslive extends access_rule_base {
         }
     }
 
-    /** @inheritdoc */
+    /** Return the join used to load monitoring settings. */
     public static function get_settings_sql($quizid) {
         return [
             'efl.enabled AS examfocuslive_enabled, efl.displaymode AS examfocuslive_displaymode, ' .
@@ -144,7 +144,7 @@ class quizaccess_examfocuslive extends access_rule_base {
         ];
     }
 
-    /** @inheritdoc */
+    /** Delete monitoring settings when the quiz is deleted. */
     public static function delete_settings($quiz) {
         global $DB;
         $quizid = is_object($quiz) ? $quiz->id : $quiz;
@@ -162,12 +162,12 @@ class quizaccess_examfocuslive extends access_rule_base {
         return ['timelimit'];
     }
 
-    /** @inheritdoc */
+    /** Return the deadline adjusted for confirmed pauses. */
     public function end_time($attempt) {
         return state_manager::get_attempt_end_time($attempt, $this->quizobj->get_quiz(), $this->quizobj->get_context());
     }
 
-    /** @inheritdoc */
+    /** Return the remaining time displayed to the student. */
     public function time_left_display($attempt, $timenow) {
         $endtime = $this->end_time($attempt);
         if (!empty($attempt->preview) && $endtime !== false && $timenow > $endtime) {
@@ -183,8 +183,10 @@ class quizaccess_examfocuslive extends access_rule_base {
      */
     public function prevent_access() {
         global $DB, $USER;
-        if (has_capability('quizaccess/examfocuslive:exempt', $this->quizobj->get_context()) ||
-                ($this->quiz->timeclose && $this->timenow >= $this->quiz->timeclose)) {
+        if (
+            has_capability('quizaccess/examfocuslive:exempt', $this->quizobj->get_context()) ||
+                ($this->quiz->timeclose && $this->timenow >= $this->quiz->timeclose)
+        ) {
             return false;
         }
         $sql = "SELECT efl.id, efl.status, efl.pausedbyteacher
@@ -209,12 +211,14 @@ class quizaccess_examfocuslive extends access_rule_base {
         return false;
     }
 
-    /** @inheritdoc */
+    /** Load student monitoring on eligible quiz attempt pages. */
     public function setup_attempt_page($page) {
         $attemptid = optional_param('attempt', 0, PARAM_INT);
-        if (!$attemptid || !in_array($page->pagetype, ['mod-quiz-attempt', 'mod-quiz-summary'], true) ||
+        if (
+            !$attemptid || !in_array($page->pagetype, ['mod-quiz-attempt', 'mod-quiz-summary'], true) ||
                 $this->quizobj->is_preview_user() ||
-                has_capability('quizaccess/examfocuslive:exempt', $this->quizobj->get_context())) {
+                has_capability('quizaccess/examfocuslive:exempt', $this->quizobj->get_context())
+        ) {
             return;
         }
         $config = state_manager::get_quiz_config($this->quizobj->get_quizid());
@@ -244,7 +248,7 @@ class quizaccess_examfocuslive extends access_rule_base {
         ]]);
     }
 
-    /** @inheritdoc */
+    /** Describe the active quiz access rule. */
     public function description() {
         $messages = [get_string('monitoringdescription', 'quizaccess_examfocuslive')];
         $context = $this->quizobj->get_context();

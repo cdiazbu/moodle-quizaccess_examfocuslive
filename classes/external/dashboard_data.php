@@ -31,9 +31,9 @@ use core_external\external_single_structure;
 use core_external\external_value;
 use quizaccess_examfocuslive\local\state_manager;
 
-defined('MOODLE_INTERNAL') || die();
-
-/** Dashboard polling endpoint. */
+/**
+ * Return live data for the teacher dashboard.
+ */
 class dashboard_data extends external_api {
     /**
      * Describe the quiz course-module identifier.

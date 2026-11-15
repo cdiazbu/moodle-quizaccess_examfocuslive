@@ -24,9 +24,9 @@
 
 namespace quizaccess_examfocuslive\task;
 
-defined('MOODLE_INTERNAL') || die();
-
-/** Expire monitoring data for completed attempts in bounded batches. */
+/**
+ * Delete expired monitoring data.
+ */
 class cleanup extends \core\task\scheduled_task {
     /**
      * Return the name shown in Moodle's scheduled tasks list.

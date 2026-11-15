@@ -26,8 +26,11 @@ defined('MOODLE_INTERNAL') || die();
 
 require_once($CFG->dirroot . '/mod/quiz/backup/moodle2/restore_mod_quiz_access_subplugin.class.php');
 
-/** Restore provider for CD Live Exam Control quiz settings. */
+/**
+ * Restore quiz monitoring settings.
+ */
 class restore_quizaccess_examfocuslive_subplugin extends restore_mod_quiz_access_subplugin {
+    /** Define the quiz settings structure. */
     protected function define_quiz_subplugin_structure() {
         return [new restore_path_element(
             $this->get_namefor(''),

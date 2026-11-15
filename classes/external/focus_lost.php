@@ -30,9 +30,9 @@ use core_external\external_single_structure;
 use core_external\external_value;
 use quizaccess_examfocuslive\local\state_manager;
 
-defined('MOODLE_INTERNAL') || die();
-
-/** Immediate focus-loss signal. */
+/**
+ * Record sustained focus loss for a quiz attempt.
+ */
 class focus_lost extends external_api {
     /**
      * Describe a focus loss observation.
@@ -64,12 +64,17 @@ class focus_lost extends external_api {
         [, , $cm, $context] = state_manager::resolve_attempt($params['attemptid'], $USER->id);
         require_login($cm->course, false, $cm);
         self::validate_context($context);
-        if (!in_array($params['eventtype'], ['visibilitychange', 'blur', 'fullscreenexit'], true) ||
-                strlen($params['eventtoken']) > 36) {
+        if (
+            !in_array($params['eventtype'], ['visibilitychange', 'blur', 'fullscreenexit'], true) ||
+                strlen($params['eventtoken']) > 36
+        ) {
             throw new \invalid_parameter_exception('Invalid focus event');
         }
         $state = state_manager::focus_lost(
-            $params['attemptid'], $USER->id, $params['eventtype'], $params['eventtoken']
+            $params['attemptid'],
+            $USER->id,
+            $params['eventtype'],
+            $params['eventtoken']
         );
         return (array) $state;
     }

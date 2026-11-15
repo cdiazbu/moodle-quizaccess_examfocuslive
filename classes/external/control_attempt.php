@@ -30,9 +30,9 @@ use core_external\external_single_structure;
 use core_external\external_value;
 use quizaccess_examfocuslive\local\state_manager;
 
-defined('MOODLE_INTERNAL') || die();
-
-/** Teacher control endpoint. */
+/**
+ * Apply a teacher decision to a quiz attempt.
+ */
 class control_attempt extends external_api {
     /**
      * Describe the teacher action and the displayed attempt revision.
