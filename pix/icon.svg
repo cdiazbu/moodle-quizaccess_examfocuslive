@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="CD Live Exam Control">
+  <defs>
+    <linearGradient id="g" x1="8" y1="8" x2="56" y2="56" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#246bfe"/>
+      <stop offset="1" stop-color="#19d3c5"/>
+    </linearGradient>
+  </defs>
+  <rect x="3" y="3" width="58" height="58" rx="17" fill="#071426"/>
+  <path d="M13 32c5.1-8.6 11.5-13 19-13s13.9 4.4 19 13c-5.1 8.6-11.5 13-19 13S18.1 40.6 13 32Z" fill="none" stroke="url(#g)" stroke-width="4" stroke-linejoin="round"/>
+  <circle cx="32" cy="32" r="7" fill="url(#g)"/>
+  <circle cx="51" cy="13" r="5" fill="#f04455" stroke="#071426" stroke-width="3"/>
+</svg>
+
