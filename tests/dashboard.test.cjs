@@ -7,6 +7,7 @@ const {test} = require('node:test');
 function dashboard(document = {documentElement: {lang: 'es'}}) {
     const source = fs.readFileSync(path.join(__dirname, '../amd/src/dashboard.js'), 'utf8')
         .replace("import Ajax from 'core/ajax';", '')
+        .replace("import Templates from 'core/templates';", '')
         .replace('export const init = ', 'const init = ');
     const moduleCode = `${source}\n({compareStudents, matchesFilter, compactCard, studentCard, bulkTargets,
         configure(options) { config = options; },
@@ -40,12 +41,12 @@ test('all sort modes preserve an uncapped roster and put the expected student fi
         assert.equal(visible.length, roster.length);
         assert.equal(visible[0].userid, first, mode);
     }
-    assert.match(panel.compactCard({...roster[60], fullname: '<Alumno>'}), /&lt;Alumno&gt;/);
-    assert.match(panel.compactCard(roster[60]), /Sin iniciar/);
-    assert.doesNotMatch(panel.compactCard(roster[60]), /Página/);
-    assert.match(panel.compactCard(roster[40]), /50%/);
-    assert.match(panel.compactCard(roster[40]), /!3/);
-    assert.match(panel.compactCard(roster[40]), /Hace 10 s/);
+    assert.equal(panel.compactCard({...roster[60], fullname: '<Alumno>'}).name, '<Alumno>');
+    assert.equal(panel.compactCard(roster[60]).status, 'Sin iniciar');
+    assert.equal(panel.compactCard(roster[60]).haspage, false);
+    assert.equal(panel.compactCard(roster[40]).progresslabel, '50%');
+    assert.equal(panel.compactCard(roster[40]).incidents, 3);
+    assert.equal(panel.compactCard(roster[40]).lastseen, 'Hace 10 s');
 });
 
 test('individual and group controls target only eligible started attempts, including offline attempts', () => {
@@ -69,12 +70,12 @@ test('individual and group controls target only eligible started attempts, inclu
     assert.deepEqual(ids('resume', false), [2]);
     assert.deepEqual(ids('terminate', false), [1, 2]);
     assert.deepEqual(ids('terminate', true), [1, 2, 3]);
-    assert.match(panel.compactCard(roster[0]), /data-action="pause"/);
-    assert.match(panel.studentCard(roster[0]), /data-action="terminate"/);
-    assert.match(panel.compactCard(roster[1]), /checked/);
-    assert.match(panel.compactCard(roster[1]), /Intento pausado por el docente/);
-    assert.doesNotMatch(panel.compactCard(roster[1]), /data-action="pause"/);
-    assert.doesNotMatch(panel.compactCard(roster[4]), /data-select-attempt/);
+    assert.ok(panel.compactCard(roster[0]).buttons.some((button) => button.action === 'pause'));
+    assert.ok(panel.studentCard(roster[0]).buttons.some((button) => button.action === 'terminate'));
+    assert.equal(panel.compactCard(roster[1]).selected, true);
+    assert.equal(panel.compactCard(roster[1]).status, 'Intento pausado por el docente');
+    assert.ok(!panel.compactCard(roster[1]).buttons.some((button) => button.action === 'pause'));
+    assert.equal(panel.compactCard(roster[4]).controls, false);
 });
 
 test('quiz link keeps native navigation during fullscreen exit and preserves modified clicks', () => {
@@ -108,4 +109,15 @@ test('quiz link keeps native navigation during fullscreen exit and preserves mod
     fullscreenClasses.add('efl-expanded');
     link.click(event);
     assert.equal(fullscreenClasses.has('efl-expanded'), false);
+});
+
+test('dashboard uses an escaped template and a small AMD initialisation payload', () => {
+    const php = fs.readFileSync(path.join(__dirname, '../dashboard.php'), 'utf8');
+    const template = fs.readFileSync(path.join(__dirname, '../templates/student_cards.mustache'), 'utf8');
+    const init = php.match(/js_call_amd\('quizaccess_examfocuslive\/dashboard', 'init', \[\[([\s\S]*?)\]\]\);/);
+    assert.ok(init);
+    assert.doesNotMatch(init[1], /strings|get_string/);
+    assert.match(php, /render_from_template\('quizaccess_examfocuslive\/dashboard'/);
+    assert.match(template, /\{\{name\}\}/);
+    assert.doesNotMatch(template, /\{\{\{name\}\}\}/);
 });

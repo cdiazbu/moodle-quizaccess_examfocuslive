@@ -22,6 +22,7 @@
  */
 
 import Ajax from 'core/ajax';
+import Templates from 'core/templates';
 
 let config;
 let overlay;
@@ -75,23 +76,14 @@ const ensurePill = () => {
     document.body.appendChild(pill);
 };
 
-const ensureOverlay = () => {
+const ensureOverlay = async() => {
     if (overlay) {
         return overlay;
     }
     overlay = document.createElement('div');
     overlay.className = 'efl-lock';
     overlay.hidden = true;
-    overlay.innerHTML = `
-        <section class="efl-lock__panel" role="alertdialog" aria-modal="true" aria-labelledby="efl-lock-title"
-                aria-describedby="efl-lock-message" tabindex="-1">
-            <div class="efl-lock__signal" aria-hidden="true"><span></span><span></span><span></span></div>
-            <div class="efl-lock__icon" aria-hidden="true">!</div>
-            <p class="efl-lock__eyebrow" data-lock-brand></p>
-            <h1 id="efl-lock-title" data-lock-title></h1>
-            <p id="efl-lock-message" data-lock-message></p>
-            <div class="efl-lock__waiting"><i aria-hidden="true"></i><span data-lock-waiting></span></div>
-        </section>`;
+    overlay.innerHTML = await Templates.render('quizaccess_examfocuslive/student_lock', {});
     overlay.querySelector('[data-lock-brand]').textContent = config.strings.pluginname;
     overlay.querySelector('[data-lock-waiting]').textContent = config.strings.waitingdecision;
     document.body.appendChild(overlay);
@@ -99,7 +91,7 @@ const ensureOverlay = () => {
 };
 
 const showLock = (title, message, mode = 'paused') => {
-    const node = ensureOverlay();
+    const node = overlay;
     node.dataset.mode = mode;
     node.querySelector('[data-lock-title]').textContent = title;
     node.querySelector('[data-lock-message]').textContent = message;
@@ -266,10 +258,15 @@ const checkFocus = () => {
     }, wait);
 };
 
-export const init = (options) => {
+export const init = async(options) => {
     config = options;
     ensurePill();
-    ensureOverlay();
+    try {
+        await ensureOverlay();
+    } catch (error) {
+        statusPill.lastElementChild.textContent = config.connectionlost;
+        throw error;
+    }
     getQuizTimer();
 
     // Only a same-tab Moodle response form may delay the focus check. A failed

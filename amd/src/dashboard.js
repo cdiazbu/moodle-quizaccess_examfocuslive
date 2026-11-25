@@ -22,6 +22,7 @@
  */
 
 import Ajax from 'core/ajax';
+import Templates from 'core/templates';
 
 let config;
 let root;
@@ -49,13 +50,6 @@ const canControl = (student) => student.attemptid > 0 && student.canmanage &&
 
 const canApply = (student, action) => canControl(student) &&
     (!actions[action].state || student.rawstatus === actions[action].state);
-
-const escapeHtml = (value) => String(value ?? '')
-    .replaceAll('&', '&amp;')
-    .replaceAll('<', '&lt;')
-    .replaceAll('>', '&gt;')
-    .replaceAll('"', '&quot;')
-    .replaceAll("'", '&#039;');
 
 const call = (methodname, args) => Ajax.call([{methodname, args}])[0];
 
@@ -97,67 +91,60 @@ const matchesFilter = (student) => {
     return true;
 };
 
-const progressRing = (value) => {
-    if (value < 0) {
-        return '<span class="efl-progress-na">—</span>';
-    }
-    return `<div class="efl-progress" style="--progress:${value}" aria-label="${value}%">
-        <span>${value}<small>%</small></span>
-    </div>`;
+// Prepare plain values only; Mustache escapes names, labels and attributes.
+const cardContext = (student, compact) => {
+    const showphoto = Boolean(displaymode !== 'name' && student.pictureurl);
+    const showname = displaymode !== 'photo' || !showphoto;
+    const blurred = student.status === 'active' && student.focusstate === 'blurred';
+    const paused = student.rawstatus === 'paused';
+    const haspage = Boolean(student.page);
+    const hasprogress = Number.isFinite(student.progress) && student.progress >= 0;
+    const progress = hasprogress ? Math.min(100, student.progress) : 0;
+    const page = haspage ? `${config.strings.page} ${student.page}` : '';
+    const available = paused ? ['resume', 'terminate'] : ['pause', 'terminate'];
+    const controls = canmanage && canControl(student);
+    return {
+        compact,
+        userid: student.userid,
+        state: student.status,
+        paused,
+        blurred,
+        showphoto,
+        showname,
+        name: student.fullname,
+        pictureurl: student.pictureurl || '',
+        alertlabel: student.manualpause ? config.strings.teacherpaused : config.strings.pausedalert,
+        status: compact && student.manualpause ? config.strings.teacherpaused
+            : compact && blurred ? config.strings.unfocused : statusLabel(student.status),
+        haspage,
+        page,
+        questionlabel: student.questionlabel || '',
+        location: haspage ? (student.questionlabel ? `${page} · ${student.questionlabel}` : page) : '—',
+        hasprogress,
+        progress,
+        progresslabel: haspage && hasprogress ? `${progress}%` : '',
+        hasincidents: Boolean(student.incidents),
+        incidents: student.incidents,
+        incidentslabel: config.strings.incidents,
+        elapsed: formatDuration(student.elapsed),
+        lastseen: student.lastseen ? formatAgo(student.secondsago) : (compact ? '' : '—'),
+        locationlabel: config.strings.location,
+        elapsedlabel: config.strings.activeelapsed,
+        lastseenlabel: config.strings.lastseen,
+        controls,
+        attemptid: student.attemptid,
+        selectlabel: controls ? config.strings.selectstudent.replace('{name}', () => student.fullname) : '',
+        selected: selectedAttempts.has(student.attemptid),
+        buttons: controls ? available.map((action) => ({
+            action,
+            attemptid: student.attemptid,
+            icon: actions[action].icon,
+            label: config.strings[action],
+        })) : [],
+    };
 };
 
-const actionButtons = (student) => {
-    if (!canmanage || !canControl(student)) {
-        return '';
-    }
-    const available = student.rawstatus === 'paused' ? ['resume', 'terminate'] : ['pause', 'terminate'];
-    const label = escapeHtml(config.strings.selectstudent.replace('{name}', () => student.fullname));
-    const checked = selectedAttempts.has(student.attemptid) ? ' checked' : '';
-    const buttons = available.map((action) => `<button type="button" class="efl-button efl-button--${action}"
-                data-action="${action}" data-attempt="${student.attemptid}">
-            <span aria-hidden="true">${actions[action].icon}</span>${escapeHtml(config.strings[action])}
-        </button>`);
-    return `<div class="efl-card__actions">
-        <label class="efl-select-attempt" title="${label}">
-            <input type="checkbox" data-select-attempt data-attempt="${student.attemptid}" aria-label="${label}"${checked}>
-        </label>
-        ${buttons.join('')}
-    </div>`;
-};
-
-const studentCard = (student) => {
-    const showPhoto = displaymode !== 'name' && student.pictureurl;
-    const showName = displaymode !== 'photo' || !showPhoto;
-    const alert = student.rawstatus === 'paused';
-    const page = `${escapeHtml(config.strings.page)} ${student.page}`;
-    const location = student.questionlabel ? `${page} · ${escapeHtml(student.questionlabel)}` : page;
-    const question = student.page ? location : '—';
-    const incidentClass = student.incidents ? 'efl-danger' : '';
-    const elapsed = formatDuration(student.elapsed);
-    const lastSeen = student.lastseen ? escapeHtml(formatAgo(student.secondsago)) : '—';
-    return `<article class="efl-card efl-card--${student.status}${alert ? ' is-alert' : ''}" data-student-card="${student.userid}">
-        ${alert ? `<div class="efl-card__alertbar"><span aria-hidden="true">!</span>
-            ${escapeHtml(student.manualpause ? config.strings.teacherpaused : config.strings.pausedalert)}</div>` : ''}
-        <div class="efl-card__top">
-            <div class="efl-identity ${showPhoto ? '' : 'efl-identity--no-photo'}">
-                ${showPhoto ? `<div class="efl-avatar"><img src="${escapeHtml(student.pictureurl)}" alt=""><i></i></div>` : ''}
-                <div class="efl-identity__copy">
-                    <h2 class="${showName ? '' : 'sr-only'}">${escapeHtml(student.fullname)}</h2>
-                    <span class="efl-status"><i></i>${escapeHtml(statusLabel(student.status))}</span>
-                </div>
-            </div>
-            ${progressRing(student.progress)}
-        </div>
-        <div class="efl-card__details">
-            <div><span>${escapeHtml(config.strings.location)}</span><strong>${question}</strong></div>
-            <div><span>${escapeHtml(config.strings.activeelapsed)}</span><strong class="efl-mono">${elapsed}</strong></div>
-            <div><span>${escapeHtml(config.strings.incidents)}</span>
-                <strong class="${incidentClass}">${student.incidents}</strong></div>
-            <div><span>${escapeHtml(config.strings.lastseen)}</span><strong>${lastSeen}</strong></div>
-        </div>
-        ${actionButtons(student)}
-    </article>`;
-};
+const studentCard = (student) => cardContext(student, false);
 
 const statusOrder = {paused: 0, overdue: 1, offline: 2, active: 3, waiting: 4, completed: 5, terminated: 6};
 const compareStudents = (a, b) => {
@@ -171,32 +158,7 @@ const compareStudents = (a, b) => {
     return (comparisons[sortMode]?.() ?? 0) || byName();
 };
 
-const compactCard = (student) => {
-    const name = escapeHtml(student.fullname);
-    const showPhoto = displaymode !== 'name' && student.pictureurl;
-    const showName = displaymode !== 'photo' || !showPhoto;
-    const outOfFocus = student.status === 'active' && student.focusstate === 'blurred';
-    const browserStatus = outOfFocus ? config.strings.unfocused : statusLabel(student.status);
-    const status = student.manualpause ? config.strings.teacherpaused : browserStatus;
-    const signal = student.lastseen ? formatAgo(student.secondsago) : '';
-    const question = student.page ? escapeHtml(`${config.strings.page} ${student.page}`) : '';
-    const progress = student.page && student.progress >= 0 ? `${student.progress}%` : '';
-    const incidents = student.incidents
-        ? `<span class="efl-tile-incidents" title="${escapeHtml(config.strings.incidents)}"
-              aria-label="${escapeHtml(config.strings.incidents)}: ${student.incidents}">!${student.incidents}</span>` : '';
-    return `<article class="efl-tile efl-tile--${student.status}${outOfFocus ? ' efl-tile--blurred' : ''}"
-                     data-student-card="${student.userid}">
-        <header class="efl-tile-heading">
-            ${showPhoto ? `<img src="${escapeHtml(student.pictureurl)}" alt="" loading="lazy">` : ''}
-            <h2 class="${showName ? '' : 'sr-only'}" title="${showName ? name : ''}">${name}</h2>
-            ${incidents}
-        </header>
-        <div class="efl-tile-status"><span>${escapeHtml(status)}</span><span>${progress}</span></div>
-        ${student.page ? `<div class="efl-tile-meta"><span title="${escapeHtml(student.questionlabel)}">${question}</span>
-            <span>${escapeHtml(signal)}</span></div>` : ''}
-        ${actionButtons(student)}
-    </article>`;
-};
+const compactCard = (student) => cardContext(student, true);
 
 const bulkTargets = (action, all) => students.filter((student) => canApply(student, action) &&
     (all || selectedAttempts.has(student.attemptid)));
@@ -219,8 +181,18 @@ const updateBulkControls = (filtered) => {
     });
 };
 
-const render = () => {
+let renderRevision = 0;
+
+const render = async() => {
+    const revision = ++renderRevision;
     const filtered = students.filter(matchesFilter).sort(compareStudents);
+    const cards = filtered.map(layout === 'compact' ? compactCard : studentCard);
+    const html = await Templates.render('quizaccess_examfocuslive/student_cards', {cards});
+    if (revision !== renderRevision) {
+        return;
+    }
+    const template = document.createElement('template');
+    template.innerHTML = html;
     const grid = root.querySelector('[data-student-grid]');
     if (grid.getAttribute('aria-busy') === 'true') {
         grid.replaceChildren();
@@ -231,17 +203,15 @@ const render = () => {
     const focusedAction = focusedAttempt ? active.dataset.action : null;
     const existing = new Map(Array.from(grid.children, (card) => [card.dataset.studentCard, card]));
     let position = grid.firstElementChild;
-    for (const student of filtered) {
-        const key = String(student.userid);
-        const html = layout === "compact" ? compactCard(student) : studentCard(student);
+    for (const rendered of Array.from(template.content.children)) {
+        const key = rendered.dataset.studentCard;
+        const renderedHtml = rendered.outerHTML;
         const previous = existing.get(key);
         existing.delete(key);
         let card = previous;
-        if (!card || card.renderedHtml !== html) {
-            const template = document.createElement('template');
-            template.innerHTML = html;
-            card = template.content.firstElementChild;
-            card.renderedHtml = html;
+        if (!card || card.renderedHtml !== renderedHtml) {
+            card = rendered;
+            card.renderedHtml = renderedHtml;
             if (previous) {
                 if (position === previous) {
                     position = card;
@@ -272,6 +242,14 @@ const render = () => {
     updateBulkControls(filtered);
 };
 
+// Event-driven refreshes must handle template loading failures as well as polling.
+const renderFromInteraction = () => {
+    render().catch(() => {
+        root.querySelector('[data-sync-label]').textContent = config.strings.syncretrying;
+        root.classList.add('is-disconnected');
+    });
+};
+
 const poll = async(force = false) => {
     if (polling) {
         refreshAfterPoll ||= force;
@@ -290,7 +268,7 @@ const poll = async(force = false) => {
                 selectedAttempts.delete(attemptid);
             }
         }
-        render();
+        await render();
         root.querySelector('[data-sync-label]').textContent = config.strings.synclive;
         root.classList.remove('is-disconnected');
     } catch {
@@ -419,7 +397,7 @@ const bind = () => {
                 item.classList.toggle('is-active', active);
                 item.setAttribute('aria-pressed', String(active));
             });
-            render();
+            renderFromInteraction();
             return;
         }
         const action = event.target.closest('button[data-action][data-attempt]');
@@ -436,12 +414,12 @@ const bind = () => {
         if (event.target.closest('[data-select-visible]')) {
             students.filter((student) => matchesFilter(student) && canControl(student))
                 .forEach((student) => selectedAttempts.add(student.attemptid));
-            render();
+            renderFromInteraction();
             return;
         }
         if (event.target.closest('[data-clear-selection]')) {
             selectedAttempts.clear();
-            render();
+            renderFromInteraction();
             return;
         }
         if (event.target.closest('[data-dialog-close]')) {
@@ -460,14 +438,14 @@ const bind = () => {
             } else {
                 selectedAttempts.delete(attemptid);
             }
-            render();
+            renderFromInteraction();
         } else if (event.target.matches('[data-action-scope]')) {
             updateBulkControls(students.filter(matchesFilter));
         }
     });
     root.querySelector('[data-search]').addEventListener('input', (event) => {
         query = event.target.value.trim().toLocaleLowerCase();
-        render();
+        renderFromInteraction();
     });
     document.addEventListener('keydown', (event) => {
         if (!pendingAction) {
@@ -569,12 +547,12 @@ export const init = (options) => {
     bind();
     root.querySelector('[data-sort]').addEventListener('change', (event) => {
         sortMode = event.target.value;
-        render();
+        renderFromInteraction();
     });
     root.querySelector('[data-layout]').addEventListener('change', (event) => {
         layout = event.target.value;
         root.dataset.layoutMode = layout;
-        render();
+        renderFromInteraction();
     });
     bindFullscreen();
     poll();
