@@ -25,7 +25,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->component = 'quizaccess_examfocuslive';
-$plugin->version = 2026111500;
+$plugin->version = 2026112500;
 $plugin->requires = 2024042200; // Moodle 4.4.
 $plugin->maturity = MATURITY_ALPHA;
-$plugin->release = '0.3.6';
+$plugin->release = '0.3.7';

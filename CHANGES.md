@@ -1,5 +1,13 @@
 # Historial de cambios
 
+## 0.3.7 - release candidate (2026-11-25)
+
+- Address Moodle review MMR-661: add standard licence and copyright headers to AMD sources (#1).
+- Render the teacher dashboard through Moodle Output API and Mustache (#2).
+- Pass only the course module ID and polling interval to the dashboard AMD initializer; provide translated strings through the template (#3).
+- Render student cards and the pause dialog through Moodle templates (#4).
+- Adapt regression tests to the new rendering structure. Release pending compilation, automated integration tests and classroom validation.
+
 ## 0.3.6 - 2026-11-15
 
 - Return to the quiz through its native link even when fullscreen exit is delayed or denied.
