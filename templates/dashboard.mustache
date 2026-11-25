@@ -1,0 +1,176 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle. If not, see <http://www.gnu.org/licenses/>.
+}}
+{{!
+    @template quizaccess_examfocuslive/dashboard
+
+    Teacher monitoring dashboard.
+
+    Example context (json):
+    {
+        "quizname": "Practice quiz",
+        "quizurl": "/mod/quiz/view.php?id=1",
+        "stringsjson": "{}",
+        "skeletons": [true, true, true, true, true, true]
+    }
+}}
+<div id="efl-dashboard" class="efl-dashboard" data-region="examfocuslive-dashboard" data-layout-mode="compact" data-strings="{{stringsjson}}">
+    <header class="efl-overview-header">
+        <div class="efl-heading">
+            <p>{{#str}} dashboardtitle, quizaccess_examfocuslive {{/str}}</p>
+            <h1>{{{quizname}}}</h1>
+        </div>
+        <div class="efl-heading-actions">
+            <span class="efl-sync"><span class="efl-sync__dot" aria-hidden="true"></span>
+                <span data-sync-label>{{#str}} syncstarting, quizaccess_examfocuslive {{/str}}</span>
+            </span>
+            <div class="efl-header-tools">
+                <a class="efl-header-control" data-back-to-quiz href="{{quizurl}}" target="_self">
+                    {{#str}} backtoquiz, quizaccess_examfocuslive {{/str}}
+                </a>
+                <button type="button" class="efl-header-control" data-fullscreen aria-pressed="false">
+                    {{#str}} overviewfullscreen, quizaccess_examfocuslive {{/str}}
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <section class="efl-metrics" aria-label="{{#str}} dashboardsummary, quizaccess_examfocuslive {{/str}}">
+        <article class="efl-metric efl-metric--total">
+            <span class="efl-metric__icon" aria-hidden="true">◎</span>
+            <span class="efl-metric__value" data-stat="total">—</span>
+            <span class="efl-metric__label">{{#str}} all, quizaccess_examfocuslive {{/str}}</span>
+        </article>
+        <article class="efl-metric efl-metric--online">
+            <span class="efl-metric__icon" aria-hidden="true">↗</span>
+            <span class="efl-metric__value" data-stat="online">—</span>
+            <span class="efl-metric__label">{{#str}} online, quizaccess_examfocuslive {{/str}}</span>
+        </article>
+        <article class="efl-metric efl-metric--alert">
+            <span class="efl-metric__icon" aria-hidden="true">!</span>
+            <span class="efl-metric__value" data-stat="alerts">—</span>
+            <span class="efl-metric__label">{{#str}} pausedattempts, quizaccess_examfocuslive {{/str}}</span>
+        </article>
+        <article class="efl-metric efl-metric--done">
+            <span class="efl-metric__icon" aria-hidden="true">✓</span>
+            <span class="efl-metric__value" data-stat="finished">—</span>
+            <span class="efl-metric__label">{{#str}} finished, quizaccess_examfocuslive {{/str}}</span>
+        </article>
+    </section>
+
+    <section class="efl-toolbar" aria-label="{{#str}} dashboardfilters, quizaccess_examfocuslive {{/str}}">
+        <div class="efl-filters">
+            <button class="efl-filter is-active" type="button" data-filter="all" aria-pressed="true">
+                {{#str}} all, quizaccess_examfocuslive {{/str}}
+            </button>
+            <button class="efl-filter" type="button" data-filter="paused" aria-pressed="false">
+                {{#str}} pausedattempts, quizaccess_examfocuslive {{/str}}
+            </button>
+            <button class="efl-filter" type="button" data-filter="active" aria-pressed="false">
+                {{#str}} online, quizaccess_examfocuslive {{/str}}
+            </button>
+            <button class="efl-filter" type="button" data-filter="finished" aria-pressed="false">
+                {{#str}} finished, quizaccess_examfocuslive {{/str}}
+            </button>
+        </div>
+        <label class="efl-search">
+            <span aria-hidden="true">⌕</span>
+            <span class="sr-only">{{#str}} searchstudent, quizaccess_examfocuslive {{/str}}</span>
+            <input type="search" data-search placeholder="{{#str}} searchstudent, quizaccess_examfocuslive {{/str}}"
+                   autocomplete="off">
+        </label>
+        <label class="efl-overview-select">
+            <span>{{#str}} overviewsort, quizaccess_examfocuslive {{/str}}</span>
+            <select data-sort>
+                <option value="name">{{#str}} sortname, quizaccess_examfocuslive {{/str}}</option>
+                <option value="status">{{#str}} sortstatus, quizaccess_examfocuslive {{/str}}</option>
+                <option value="incidents">{{#str}} sortincidents, quizaccess_examfocuslive {{/str}}</option>
+                <option value="progress">{{#str}} sortprogress, quizaccess_examfocuslive {{/str}}</option>
+                <option value="seen">{{#str}} sortseen, quizaccess_examfocuslive {{/str}}</option>
+            </select>
+        </label>
+        <label class="efl-overview-select">
+            <span>{{#str}} overviewview, quizaccess_examfocuslive {{/str}}</span>
+            <select data-layout>
+                <option value="compact">{{#str}} overviewcompact, quizaccess_examfocuslive {{/str}}</option>
+                <option value="details">{{#str}} overviewdetails, quizaccess_examfocuslive {{/str}}</option>
+            </select>
+        </label>
+    </section>
+
+    <section class="efl-bulk" data-bulk hidden aria-label="{{#str}} groupcontrol, quizaccess_examfocuslive {{/str}}">
+        <div class="efl-bulk-selection">
+            <button type="button" class="efl-button efl-button--quiet" data-select-visible>
+                {{#str}} selectvisible, quizaccess_examfocuslive {{/str}}
+            </button>
+            <button type="button" class="efl-button efl-button--quiet" data-clear-selection>
+                {{#str}} clearselection, quizaccess_examfocuslive {{/str}}
+            </button>
+            <span data-selection-count></span>
+        </div>
+        <div class="efl-bulk-actions">
+            <label class="efl-overview-select">
+                <span>{{#str}} applyto, quizaccess_examfocuslive {{/str}}</span>
+                <select data-action-scope>
+                    <option value="selected">{{#str}} selectedattempts, quizaccess_examfocuslive {{/str}}</option>
+                    <option value="all">{{#str}} allattempts, quizaccess_examfocuslive {{/str}}</option>
+                </select>
+            </label>
+            <button type="button" class="efl-button efl-button--pause" data-bulk-action="pause">
+                {{#str}} pause, quizaccess_examfocuslive {{/str}}
+            </button>
+            <button type="button" class="efl-button efl-button--resume" data-bulk-action="resume">
+                {{#str}} resume, quizaccess_examfocuslive {{/str}}
+            </button>
+            <button type="button" class="efl-button efl-button--terminate" data-bulk-action="terminate">
+                {{#str}} terminate, quizaccess_examfocuslive {{/str}}
+            </button>
+        </div>
+    </section>
+
+    <p class="efl-visible-count" data-visible-count></p>
+    <section class="efl-student-grid" data-student-grid aria-busy="true">
+        {{#skeletons}}
+            <div class="efl-card efl-card--skeleton" aria-hidden="true"><span></span><span></span><span></span></div>
+        {{/skeletons}}
+    </section>
+
+    <div class="efl-empty" data-empty hidden>
+        <span aria-hidden="true">◌</span>
+        <strong>{{#str}} dashboardempty, quizaccess_examfocuslive {{/str}}</strong>
+
+    </div>
+
+    <div class="efl-dialog-backdrop" data-dialog-backdrop hidden>
+        <section class="efl-dialog" role="alertdialog" aria-modal="true"
+                 aria-labelledby="efl-dialog-title" aria-describedby="efl-dialog-message">
+            <button type="button" class="efl-dialog__close" data-dialog-close aria-label="{{#str}} close {{/str}}">
+                ×
+            </button>
+            <div class="efl-dialog__icon" data-dialog-icon>!</div>
+            <h2 id="efl-dialog-title" data-dialog-title></h2>
+            <p id="efl-dialog-message" data-dialog-message></p>
+            <p data-dialog-error role="alert" hidden></p>
+            <div class="efl-dialog__actions">
+                <button type="button" class="efl-button efl-button--quiet" data-dialog-close data-dialog-cancel>
+                    {{#str}} cancel {{/str}}
+                </button>
+                <button type="button" class="efl-button efl-button--primary" data-dialog-confirm></button>
+            </div>
+        </section>
+    </div>
+    <div class="efl-toast" data-toast role="status" aria-live="polite" hidden></div>
+</div>
