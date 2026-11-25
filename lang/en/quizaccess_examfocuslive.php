@@ -37,6 +37,7 @@ $string['bulkconfirm'] = 'Attempts affected: {$a}.';
 $string['bulkfailed'] = 'The whole operation could not be confirmed. Check the updated dashboard.';
 $string['bulkresult'] = 'Attempts updated: {$a->updated}. Unchanged: {$a->skipped}.';
 $string['clearselection'] = 'Clear selection';
+$string['closedialog'] = 'Close dialog';
 $string['completed'] = 'Submitted';
 $string['conflictingmonitor'] = 'Enable only one CD focus monitor per quiz.';
 $string['connectionlost'] = 'The supervision connection was interrupted. Your quiz controls remain available.';

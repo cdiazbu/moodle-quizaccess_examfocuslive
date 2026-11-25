@@ -92,17 +92,63 @@ const matchesFilter = (student) => {
 };
 
 // Prepare plain values only; Mustache escapes names, labels and attributes.
+const cardStatus = (student, compact, blurred) => {
+    if (compact && student.manualpause) {
+        return config.strings.teacherpaused;
+    }
+    if (compact && blurred) {
+        return config.strings.unfocused;
+    }
+    return statusLabel(student.status);
+};
+
+const cardLocation = (student) => {
+    const haspage = Boolean(student.page);
+    const page = haspage ? `${config.strings.page} ${student.page}` : '';
+    let location = '—';
+    if (haspage) {
+        location = student.questionlabel ? `${page} · ${student.questionlabel}` : page;
+    }
+    return {haspage, page, location, questionlabel: student.questionlabel || ''};
+};
+
+const cardControls = (student, paused) => {
+    const controls = canmanage && canControl(student);
+    const available = paused ? ['resume', 'terminate'] : ['pause', 'terminate'];
+    return {
+        controls,
+        attemptid: student.attemptid,
+        selectlabel: controls ? config.strings.selectstudent.replace('{name}', () => student.fullname) : '',
+        selected: selectedAttempts.has(student.attemptid),
+        buttons: controls ? available.map((action) => ({
+            action,
+            attemptid: student.attemptid,
+            icon: actions[action].icon,
+            label: config.strings[action],
+        })) : [],
+    };
+};
+
+const cardProgress = (student, haspage) => {
+    const hasprogress = Number.isFinite(student.progress) && student.progress >= 0;
+    const progress = hasprogress ? Math.min(100, student.progress) : 0;
+    return {
+        hasprogress,
+        progress,
+        progresslabel: haspage && hasprogress ? `${progress}%` : '',
+    };
+};
+
 const cardContext = (student, compact) => {
     const showphoto = Boolean(displaymode !== 'name' && student.pictureurl);
     const showname = displaymode !== 'photo' || !showphoto;
     const blurred = student.status === 'active' && student.focusstate === 'blurred';
     const paused = student.rawstatus === 'paused';
-    const haspage = Boolean(student.page);
-    const hasprogress = Number.isFinite(student.progress) && student.progress >= 0;
-    const progress = hasprogress ? Math.min(100, student.progress) : 0;
-    const page = haspage ? `${config.strings.page} ${student.page}` : '';
-    const available = paused ? ['resume', 'terminate'] : ['pause', 'terminate'];
-    const controls = canmanage && canControl(student);
+    const location = cardLocation(student);
+    let lastseen = compact ? '' : '—';
+    if (student.lastseen) {
+        lastseen = formatAgo(student.secondsago);
+    }
     return {
         compact,
         userid: student.userid,
@@ -114,33 +160,18 @@ const cardContext = (student, compact) => {
         name: student.fullname,
         pictureurl: student.pictureurl || '',
         alertlabel: student.manualpause ? config.strings.teacherpaused : config.strings.pausedalert,
-        status: compact && student.manualpause ? config.strings.teacherpaused
-            : compact && blurred ? config.strings.unfocused : statusLabel(student.status),
-        haspage,
-        page,
-        questionlabel: student.questionlabel || '',
-        location: haspage ? (student.questionlabel ? `${page} · ${student.questionlabel}` : page) : '—',
-        hasprogress,
-        progress,
-        progresslabel: haspage && hasprogress ? `${progress}%` : '',
+        status: cardStatus(student, compact, blurred),
+        ...location,
+        ...cardProgress(student, location.haspage),
         hasincidents: Boolean(student.incidents),
         incidents: student.incidents,
         incidentslabel: config.strings.incidents,
         elapsed: formatDuration(student.elapsed),
-        lastseen: student.lastseen ? formatAgo(student.secondsago) : (compact ? '' : '—'),
+        lastseen,
         locationlabel: config.strings.location,
         elapsedlabel: config.strings.activeelapsed,
         lastseenlabel: config.strings.lastseen,
-        controls,
-        attemptid: student.attemptid,
-        selectlabel: controls ? config.strings.selectstudent.replace('{name}', () => student.fullname) : '',
-        selected: selectedAttempts.has(student.attemptid),
-        buttons: controls ? available.map((action) => ({
-            action,
-            attemptid: student.attemptid,
-            icon: actions[action].icon,
-            label: config.strings[action],
-        })) : [],
+        ...cardControls(student, paused),
     };
 };
 
