@@ -1,0 +1,65 @@
+name: Publish 0.3.7 build 2026112800 (one-time)
+on:
+  push:
+    branches: [publish-0.3.7-build-2026112800]
+    paths:
+      - '.github/workflows/publish-build-2026112800.yml'
+permissions:
+  contents: write
+jobs:
+  publish:
+    if: github.ref == 'refs/heads/publish-0.3.7-build-2026112800'
+    runs-on: ubuntu-24.04
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: b772f8721620dfedb7e078c606cf22a0daf066d2
+          persist-credentials: false
+      - name: Verify and repackage tested release
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/build037"
+          gh release download v0.3.7 --pattern CD-Live-Exam-Control-0.3.7.zip --dir "$RUNNER_TEMP/build037"
+          cp version.php "$RUNNER_TEMP/build037/version.php"
+          cd "$RUNNER_TEMP/build037"
+          echo "b750572a9958d9ed1c1c215e7c9cf0d51d1dac11fc9262313d890b634ed269fb  CD-Live-Exam-Control-0.3.7.zip" | sha256sum --check
+          python3 - <<'PY'
+          import zipfile
+          from pathlib import Path
+          old = 'CD-Live-Exam-Control-0.3.7.zip'
+          new = 'CD-Live-Exam-Control-0.3.7-build-2026112800.zip'
+          key = 'examfocuslive/version.php'
+          with zipfile.ZipFile(old) as src, zipfile.ZipFile(new, 'w', compression=zipfile.ZIP_DEFLATED, compresslevel=9) as dst:
+              assert src.testzip() is None
+              assert len(src.namelist()) == len(set(src.namelist()))
+              before = src.read(key)
+              after = before.replace(b'$plugin->version = 2026112500;', b'$plugin->version = 2026112800;')
+              assert before != after
+              assert after == Path('version.php').read_bytes()
+              for entry in src.infolist():
+                  dst.writestr(entry, after if entry.filename == key else src.read(entry), compresslevel=9)
+          with zipfile.ZipFile(old) as src, zipfile.ZipFile(new) as dst:
+              assert dst.testzip() is None
+              assert src.namelist() == dst.namelist()
+              assert [n for n in src.namelist() if src.read(n) != dst.read(n)] == [key]
+              print(f'{len(dst.namelist())} entries; only version.php changed')
+          PY
+          sha256sum CD-Live-Exam-Control-0.3.7-build-2026112800.zip
+      - name: Publish new build without changing the existing tag or asset
+        run: |
+          set -euo pipefail
+          cd "$RUNNER_TEMP/build037"
+          cat > notes.md <<'NOTES'
+          CD Live Exam Control 0.3.7 alpha — build 2026112800, intended for the 28 November 2026 Marketplace submission.
+
+          This is the same tested 0.3.7 code with only the Moodle build number increased from 2026112500 to 2026112800. No functional changes. The previous tag and ZIP are retained for reproducibility.
+
+          The original 0.3.7 passed 13 JavaScript tests, Moodle 4.5 integration on MariaDB 11 and PostgreSQL 17, and 12 PHPUnit tests (79 assertions per database). This repackaging checks the original ZIP checksum, file integrity and confirms that only version.php changed. Full CI for the new build is separate.
+          
+          [Original validation](https://github.com/cdiazbu/moodle-quizaccess_examfocuslive/actions/runs/46037419573).
+          NOTES
+          printf '\nSHA-256: `%s`\n' "$(sha256sum CD-Live-Exam-Control-0.3.7-build-2026112800.zip | cut -d' ' -f1)" >> notes.md
+          gh release create v0.3.7-build-2026112800 CD-Live-Exam-Control-0.3.7-build-2026112800.zip --target b772f8721620dfedb7e078c606cf22a0daf066d2 --title "CD Live Exam Control 0.3.7 — build 2026112800" --notes-file notes.md --prerelease
