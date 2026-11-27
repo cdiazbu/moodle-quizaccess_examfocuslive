@@ -1,0 +1,51 @@
+name: Publish verified 0.3.7 release (one-time)
+on:
+  push:
+    branches: [publish-0.3.7]
+    paths:
+      - '.github/workflows/publish-verified-037.yml'
+permissions:
+  actions: read
+  contents: write
+jobs:
+  publish:
+    if: github.ref == 'refs/heads/publish-0.3.7'
+    runs-on: ubuntu-24.04
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+    steps:
+      - name: Download exact validated package
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/release-037"
+          gh run download 46037419573 --name CD-Live-Exam-Control --dir "$RUNNER_TEMP/release-037"
+          cd "$RUNNER_TEMP/release-037"
+          echo "b750572a9958d9ed1c1c215e7c9cf0d51d1dac11fc9262313d890b634ed269fb  CD-Live-Exam-Control-0.3.7.zip" | sha256sum --check
+          unzip -t CD-Live-Exam-Control-0.3.7.zip
+      - name: Publish the tested alpha release
+        run: |
+          set -euo pipefail
+          cat > "$RUNNER_TEMP/release-notes.md" <<'NOTES'
+          ## CD Live Exam Control 0.3.7
+
+          This alpha release addresses the recommendations from the Moodle plugin review.
+
+          - Added standard Moodle copyright and licence headers to the AMD sources.
+          - Migrated the live teacher dashboard to Moodle's Mustache templates and Output API.
+          - Reduced AMD initialisation arguments and corrected a missing language string affecting developer debugging.
+          - Migrated the student cards and pause dialog to Moodle templates.
+          - Improved code maintainability and expanded regression coverage.
+
+          Automated validation passed on Moodle 4.5 with MariaDB 11 and PostgreSQL 17 (12 PHPUnit tests and 79 assertions on each database), and all 13 JavaScript tests passed. Native AMD compilation and package integrity checks passed. The maintainer reports successful practical testing on the Moodle clone.
+
+          Download the attached installation ZIP. The plugin remains alpha.
+
+          SHA-256: `b750572a9958d9ed1c1c215e7c9cf0d51d1dac11fc9262313d890b634ed269fb`
+
+          [Verification run](https://github.com/cdiazbu/moodle-quizaccess_examfocuslive/actions/runs/46037419573) · [Changes](https://github.com/cdiazbu/moodle-quizaccess_examfocuslive/pull/5)
+
+          Thanks to the Moodle plugin reviewer for the constructive feedback.
+          NOTES
+          gh release create v0.3.7 "$RUNNER_TEMP/release-037/CD-Live-Exam-Control-0.3.7.zip" --target 7ad9267f0623de174aadfb435fadf9ffb8ca0327 --title "CD Live Exam Control 0.3.7" --notes-file "$RUNNER_TEMP/release-notes.md" --prerelease
+          gh release view v0.3.7 --json tagName,url,assets,isPrerelease
