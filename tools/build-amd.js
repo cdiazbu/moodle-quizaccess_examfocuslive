@@ -13,12 +13,13 @@ async function build() {
         const esModule = fs.readFileSync(path.join(source, filename), 'utf8').replace(/\r\n/g, '\n');
         const body = esModule
             .replace(/^import Ajax from 'core\/ajax';$/m, '')
+            .replace(/^import Templates from 'core\/templates';$/m, '')
             .replace(/^export const init = /m, 'const init = ');
         if (body === esModule || /^\s*(import|export)\s/m.test(body)) {
             throw new Error(`Unsupported module syntax in ${filename}`);
         }
         const id = `quizaccess_examfocuslive/${name}`;
-        const amd = `define('${id}', ['core/ajax'], function(Ajax) {'use strict';\n${body}\nreturn {init};\n});`;
+        const amd = `define('${id}', ['core/ajax', 'core/templates'], function(Ajax, Templates) {'use strict';\n${body}\nreturn {init};\n});`;
         const outputName = `${name}.min.js`;
         const result = await minify({[filename]: amd}, {
             ecma: 2021,

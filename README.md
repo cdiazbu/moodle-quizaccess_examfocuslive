@@ -9,7 +9,7 @@ CD Live Exam Control is a Moodle quiz access rule that gives authorised teachers
 3. Edit a quiz and enable **CD Live Exam Control – live proctoring**. Choose how to identify participants, whether to display progress and whether sustained focus loss should pause an attempt. Use a practice quiz to check the settings before an assessed session.
 4. Open the quiz as a teacher and choose **Open monitoring dashboard**. Start a separate attempt as an enrolled student to see live updates. Moodle teacher previews are excluded from monitoring.
 
-Version 0.3.6 is an alpha release candidate. The validation target is Moodle 4.5. See [validation and Marketplace submission](docs/VALIDACION-Y-MARKETPLACE.md) for the evidence required to declare support.
+Version 0.3.7 is an alpha release candidate under validation. The latest published release remains 0.3.6 until the candidate has passed verification. The validation target is Moodle 4.5. See [validation and Marketplace submission](docs/VALIDACION-Y-MARKETPLACE.md) for the evidence required to declare support.
 
 ## During a quiz
 

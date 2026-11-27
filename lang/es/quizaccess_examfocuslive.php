@@ -37,6 +37,7 @@ $string['bulkconfirm'] = 'Intentos que se verán afectados: {$a}.';
 $string['bulkfailed'] = 'No se pudo confirmar el resultado de toda la operación. Revisa el panel actualizado.';
 $string['bulkresult'] = 'Intentos actualizados: {$a->updated}. Sin cambios: {$a->skipped}.';
 $string['clearselection'] = 'Limpiar selección';
+$string['closedialog'] = 'Cerrar diálogo';
 $string['completed'] = 'Entregado';
 $string['conflictingmonitor'] = 'Activa un solo complemento CD de detección de foco por cuestionario.';
 $string['connectionlost'] = 'Se ha interrumpido la conexión con el panel. Puedes seguir usando los controles del cuestionario.';
